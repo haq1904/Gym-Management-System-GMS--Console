@@ -4,6 +4,11 @@ public abstract class User {
 
 
     protected String username;
+
+    public String getPassword() {
+        return password;
+    }
+
     protected String password;
     protected String fullName;
     protected String role;
@@ -42,4 +47,13 @@ public abstract class User {
     }
 
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", role='" + role + '\'' +
+                '}';
+    }
 }
