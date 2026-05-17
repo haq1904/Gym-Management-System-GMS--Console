@@ -1,5 +1,9 @@
 package com.gym.model;
 
+import com.gym.repository.UserRepository;
+
+import java.util.List;
+
 public abstract class User {
 
 
@@ -32,7 +36,7 @@ public abstract class User {
     }
 
     //Cac user deu can phai override lai
-    public abstract void displayMenu();
+    public abstract void displayMenu(List<User> userList, UserRepository userRepo);
 
     public String getRole() {
         return role;

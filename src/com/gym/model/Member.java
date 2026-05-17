@@ -1,5 +1,9 @@
 package com.gym.model;
 
+import com.gym.repository.UserRepository;
+
+import java.util.List;
+
 public class Member extends User {
     private String membershipType; // Loai goi tap
     private String subscriptionStatus; // Trang thai(Activated , Expired)
@@ -23,7 +27,7 @@ public class Member extends User {
         super(username, password, fullName, "Member");
         this.membershipType = membershipType;
         this.subscriptionStatus = subscriptionStatus;
-        this.workoutProgress = "Chưa có thông tin";
+        this.workoutProgress = "No infor";
     }
 
     public Member() {
@@ -40,18 +44,18 @@ public class Member extends User {
     //Update tien do
     public void updateProgress(String newProgress) {
         this.workoutProgress = newProgress;
-        System.out.println("Cập nhật tiến độ thành công!");
+        System.out.println("Updated progress!");
     }
 
     //Gia han goi tap
     public void renewSubscription(String newPlan) {
         this.membershipType = newPlan;
         this.subscriptionStatus = "Active";
-        System.out.println("Gia hạn thành công gói: " + newPlan);
+        System.out.println("Renewed subscription: " + newPlan);
     }
 
     @Override
-    public void displayMenu() {
+    public void displayMenu(List<User> userList, UserRepository userRepo) {
         // Hiển thị menu gọi đến các hàm trên
     }
 

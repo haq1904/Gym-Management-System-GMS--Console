@@ -1,5 +1,9 @@
 package com.gym.model;
 
+import com.gym.repository.UserRepository;
+
+import java.util.List;
+
 public class Trainer extends User {
 
     public String getSpecialty() {
@@ -35,7 +39,7 @@ public class Trainer extends User {
 
 
     @Override
-    public void displayMenu() {
+    public void displayMenu(List<User> userList, UserRepository userRepo) {
 
     }
 }

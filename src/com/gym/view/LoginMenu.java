@@ -23,41 +23,41 @@ public class LoginMenu {
         while (true) {
             clearScreen();
             System.out.println("=========================================");
-            System.out.println("   HỆ THỐNG QUẢN LÝ PHÒNG GYM (GMS)      ");
+            System.out.println("       GYM MANAGEMENT SYSTEM (GMS)       ");
             System.out.println("=========================================");
-            System.out.println("1. Đăng nhập vào hệ thống");
-            System.out.println("0. Thoát chương trình");
+            System.out.println("1. Login to the system");
+            System.out.println("0. Exit program");
             System.out.println("=========================================");
-            System.out.print("Chọn chức năng (0-1): ");
+            System.out.print("Select an option (0-1): ");
 
             String choice = scanner.nextLine();
 
             if (choice.equals("1")) {
-                System.out.print("-> Nhập tài khoản (Username): ");
+                System.out.print("-> Enter Username: ");
                 String username = scanner.nextLine();
-                System.out.print("-> Nhập mật khẩu (Password): ");
+                System.out.print("-> Enter Password: ");
                 String password = scanner.nextLine();
 
-                //Xac thuc tai khoan
+                // Authenticate user
                 User authenticatedUser = authenticate(userList, username, password);
 
                 if (authenticatedUser != null) {
-                    System.out.println("\n[ THÀNH CÔNG ] Đăng nhập thành công!");
-                    System.out.println("Xin chào " + authenticatedUser.getRole() + ": " + authenticatedUser.getFullName() + "."); // [cite: 32, 41]
-                    System.out.println("Nhấn Enter để tiếp tục vào ứng dụng...");
+                    System.out.println("\n[ SUCCESS ] Login successful!");
+                    System.out.println("Welcome " + authenticatedUser.getRole() + ": " + authenticatedUser.getFullName() + ".");
+                    System.out.println("Press Enter to continue...");
                     scanner.nextLine();
                     return authenticatedUser;
                 } else {
-                    System.out.println("\n[ THẤT BẠI ] Sai tài khoản hoặc mật khẩu! Vui lòng thử lại.");
-                    System.out.println("Nhấn Enter để tiếp tục...");
+                    System.out.println("\n[ FAILED ] Invalid username or password! Please try again.");
+                    System.out.println("Press Enter to continue...");
                     scanner.nextLine();
                 }
             } else if (choice.equals("0")) {
-                System.out.println("\nCảm ơn ông đã sử dụng hệ thống GMS! Tạm biệt.");
+                System.out.println("\nThank you for using GMS! Goodbye.");
                 System.exit(0);
             } else {
-                System.out.println("\n[ CẢNH BÁO ] Lựa chọn không hợp lệ! Vui lòng nhập lại.");
-                System.out.println("Nhấn Enter để tiếp tục...");
+                System.out.println("\n[ WARNING ] Invalid choice! Please try again.");
+                System.out.println("Press Enter to continue...");
                 scanner.nextLine();
             }
         }
@@ -67,9 +67,10 @@ public class LoginMenu {
     private User authenticate(List<User> userList, String username, String password) {
         for (User user : userList){
             if (user.getUsername().equals(username) && user.checkPassword(password)) { // [cite: 32]
-                return user; // Tìm thấy và đúng pass -> trả về user đó
+                return user;
             }
         }
-        return null; // Không tìm thấy tài khoản hợp lệ
+        return null;
     }
 }
+

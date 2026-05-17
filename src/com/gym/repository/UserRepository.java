@@ -8,12 +8,17 @@ import java.util.List;
 
 public class UserRepository {
 
+    private String filePath;
+
+    public UserRepository(String filePath) {
+        this.filePath = filePath;
+    }
     //Ham doc file , chuyen thanh list user
-    public List<User> loadUsers(String filePath) {
+    public List<User> loadUsers() {
         List<User> userList = new ArrayList<>();
 
         //Su dung buffer de doc tung dong torng file
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(this.filePath))) {
             String line;
 
             while ((line = br.readLine()) != null) {
@@ -45,16 +50,16 @@ public class UserRepository {
                 }
             }
         } catch (IOException e) {
-            System.out.println("[ LỖI ] Không thể đọc file dữ liệu tài khoản: " + e.getMessage());
+            System.out.println("[ Error ] Can not read account's data: " + e.getMessage());
         }
 
         return userList;
     }
 
-    public void saveUsers(List<User> userList, String filePath) {
+    public void saveUsers(List<User> userList) {
         // Dùng BufferedWriter để ghi file, tham số thứ 2 của FileWriter không để true
         // để nó ghi đè (overwrite) toàn bộ file thay vì viết tiếp vào cuối file.
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.filePath))) {
             for (User user : userList) {
                 StringBuilder sb = new StringBuilder();
                 // Nối các thuộc tính chung của User
@@ -78,18 +83,18 @@ public class UserRepository {
                 bw.newLine(); // Xuống dòng cho user tiếp theo
             }
         } catch (IOException e) {
-            System.out.println("[ LỖI ] Không thể lưu dữ liệu tài khoản: " + e.getMessage());
+            System.out.println("[ Error ] Can not save account's data: " + e.getMessage());
         }
     }
 
     /**
      * HÀM 2: Thêm User mới (áp dụng chung cho cả Admin, Trainer, Member)
      */
-    public boolean addUser(List<User> userList, User newUser, String filePath) {
+    public boolean addUser(List<User> userList, User newUser) {
         // 1. Kiểm tra xem username đã tồn tại chưa để tránh trùng lặp
         for (User u : userList) {
-            if (u.getUsername().equalsIgnoreCase(newUser.getUsername())) {
-                System.out.println("[ LỖI ] Tài khoản '" + newUser.getUsername() + "' đã tồn tại!");
+            if (u.getUsername().equals(newUser.getUsername())) {
+                System.out.println("[ Error ]  '" + newUser.getUsername() + "' existed!");
                 return false;
             }
         }
@@ -98,20 +103,20 @@ public class UserRepository {
         userList.add(newUser);
 
         // 3. Đồng bộ ngay lập tức xuống file CSV
-        saveUsers(userList, filePath);
-        System.out.println("[ THÀNH CÔNG ] Đã thêm người dùng: " + newUser.getFullName());
+        saveUsers(userList);
+        System.out.println("[ Complete ] Added account with full name: " + newUser.getFullName());
         return true;
     }
 
     /**
      * HÀM 3: Xóa User theo Username
      */
-    public boolean deleteUser(List<User> userList, String username, String filePath) {
+    public boolean deleteUser(List<User> userList, String username) {
         User userToDelete = null;
 
         // 1. Tìm kiếm user trong List
         for (User u : userList) {
-            if (u.getUsername().equalsIgnoreCase(username)) {
+            if (u.getUsername().equals(username)) {
                 userToDelete = u;
                 break;
             }
@@ -120,11 +125,11 @@ public class UserRepository {
         // 2. Xóa và lưu lại file
         if (userToDelete != null) {
             userList.remove(userToDelete);
-            saveUsers(userList, filePath);
-            System.out.println("[ THÀNH CÔNG ] Đã xóa tài khoản: " + username);
+            saveUsers(userList);
+            System.out.println("[ Complete ] Deleted username: " + username);
             return true;
         } else {
-            System.out.println("[ LỖI ] Không tìm thấy tài khoản có username: " + username);
+            System.out.println("[ Error ] Account with username : " + username +" doesn't exist.");
             return false;
         }
     }

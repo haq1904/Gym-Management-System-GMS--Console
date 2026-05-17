@@ -8,8 +8,8 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         //Khoi tao doi tuong quan ly
-        UserRepository userManager = new UserRepository();
-        List<User> databaseUsers = userManager.loadUsers("data/user.csv");
+        UserRepository userRepo = new UserRepository("data/user.csv");
+        List<User> databaseUsers = userRepo.loadUsers();
         for(User user : databaseUsers){
             System.out.println(user);
         }
@@ -23,7 +23,7 @@ public class Main {
             User loggedInUser = loginMenu.displayLogin(databaseUsers);
 
             //Hien thi menu theo tung class duoc tra ve
-            loggedInUser.displayMenu();
+            loggedInUser.displayMenu(databaseUsers,userRepo);
         }
 
     }
