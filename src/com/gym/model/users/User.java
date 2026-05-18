@@ -2,6 +2,8 @@ package com.gym.model.users;
 
 import com.gym.repository.GymContext;
 import com.gym.repository.UserRepository;
+import com.gym.view.AdminView;
+import com.gym.view.IDisplayMenu;
 
 import java.util.List;
 
@@ -9,14 +11,13 @@ public abstract class User {
 
 
     protected String username;
-
-    public String getPassword() {
-        return password;
-    }
-
     protected String password;
     protected String fullName;
     protected String role;
+
+
+
+    protected IDisplayMenu menu;
 
     protected User(String username, String password, String fullName, String role) {
         this.username = username;
@@ -36,8 +37,7 @@ public abstract class User {
         return this.password.equals(inputPassword);
     }
 
-    //Cac user deu can phai override lai
-    public abstract void displayMenu(GymContext context);
+
 
     public String getRole() {
         return role;
@@ -50,6 +50,12 @@ public abstract class User {
     public String getFullName() {
         return fullName;
     }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public abstract IDisplayMenu getMenu();
 
 
     @Override

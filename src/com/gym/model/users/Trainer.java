@@ -2,6 +2,7 @@ package com.gym.model.users;
 
 import com.gym.repository.GymContext;
 import com.gym.repository.UserRepository;
+import com.gym.view.IDisplayMenu;
 
 import java.util.List;
 
@@ -23,6 +24,11 @@ public class Trainer extends User {
         this.role = "Trainer"; // hard code cho role
     }
 
+    @Override
+    public IDisplayMenu getMenu() {
+        return null;
+    }
+
     //Xep lich cho member
     public void assignWorkoutSchedule(Member member, String date, String exercise) {
         // Code tạo đối tượng Schedule và lưu xuống file schedules.csv
@@ -38,9 +44,4 @@ public class Trainer extends User {
         System.out.println("Tiến độ của " + member.getFullName() + ": " + member.getWorkoutProgress()); //
     }
 
-
-    @Override
-    public void displayMenu(GymContext context) {
-
-    }
 }

@@ -2,6 +2,7 @@ package com.gym.model.users;
 
 import com.gym.repository.GymContext;
 import com.gym.repository.UserRepository;
+import com.gym.view.IDisplayMenu;
 
 import java.util.List;
 
@@ -37,6 +38,11 @@ public class Member extends User {
         this.subscriptionStatus = "Expired"; // Mặc định chưa nộp tiền là Expired
     }
 
+    @Override
+    public IDisplayMenu getMenu() {
+        return null;
+    }
+
     //Xem lich tap
     public void viewWorkoutSchedule() {
         // Code gọi ScheduleRepository để in lịch tập của hội viên này ra màn hình
@@ -55,10 +61,5 @@ public class Member extends User {
         System.out.println("Renewed subscription: " + newPlan);
     }
 
-    @Override
-    public void displayMenu(GymContext context) {
-        // Hiển thị menu gọi đến các hàm trên
-    }
 
-    // Đừng quên tạo các hàm Getter/Setter cho các thuộc tính mới nhé!
 }

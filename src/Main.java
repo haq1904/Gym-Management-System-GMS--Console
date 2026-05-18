@@ -11,28 +11,16 @@ public class Main {
 
 
     public static void main(String[] args) {
-
+        //path file data
         String userFilePath = "data/user.csv";
         String machineFilePath = "data/machine.csv";
 
-
-
-        //Load danh sach user
-        UserRepository userRepo = new UserRepository(userFilePath);
-        List<User> userList = userRepo.loadData();
-//        for(User user : userList){
-//            System.out.println(user);
-//        }
-
-        //Load danh sach machine
-        MachineRepository machineRepo = new MachineRepository(machineFilePath);
-        List<GymMachine> machineList = machineRepo.loadData();
-        for (GymMachine machine : machineList){
-            System.out.println(machine);
-        }
+        //Khoi tao repo de cho viec load du lieu
+        IRepository<User> userRepo = new UserRepository(userFilePath);
+        IRepository<GymMachine> machineRepo = new MachineRepository(machineFilePath);
 
         //Lay GymContext
-        GymContext gymContext = new GymContext(userRepo,userList,machineRepo,machineList);
+        GymContext gymContext = new GymContext(userRepo,machineRepo);
 
         // Khoi tao menu login
         LoginMenu loginMenu = new LoginMenu();
@@ -40,10 +28,8 @@ public class Main {
         // Vong lap chinh chay chuong trinh
         while (true) {
             //Goi menu dang nhap , treo cho toi khi nguoi dung dang nhap và tra ve user
-            User loggedInUser = loginMenu.displayLogin(userList);
-
-            //Hien thi menu theo tung class duoc tra ve
-            loggedInUser.displayMenu(gymContext);
+            User loggedInUser = loginMenu.displayLogin(gymContext);
+            loggedInUser.getMenu().displayMenu(gymContext,loggedInUser);
         }
 
     }

@@ -2,6 +2,7 @@ package com.gym.view;
 
 import com.gym.model.facilities.GymMachine;
 import com.gym.model.users.User;
+import com.gym.repository.GymContext;
 
 import java.util.List;
 import java.util.Scanner;
@@ -20,7 +21,8 @@ public class LoginMenu {
         System.out.flush();
     }
 
-    public User displayLogin(List<User> userList) {
+    public User displayLogin(GymContext gymContext) {
+        List<User> userList = gymContext.getUserList();
         while (true) {
             clearScreen();
             System.out.println("=========================================");
