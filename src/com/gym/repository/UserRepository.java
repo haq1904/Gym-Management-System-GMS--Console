@@ -1,12 +1,15 @@
 package com.gym.repository;
 
-import com.gym.model.*; //import user,admin,trainer, member
+import com.gym.model.users.Admin;
+import com.gym.model.users.Member;
+import com.gym.model.users.Trainer;
+import com.gym.model.users.User;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRepository {
+public class UserRepository implements IRepository<User> {
 
     private String filePath;
 
@@ -14,10 +17,12 @@ public class UserRepository {
         this.filePath = filePath;
     }
     //Ham doc file , chuyen thanh list user
-    public List<User> loadUsers() {
+
+    @Override
+    public List<User> loadData() {
         List<User> userList = new ArrayList<>();
 
-        //Su dung buffer de doc tung dong torng file
+        //Su dung buffer de doc tung dong trong file
         try (BufferedReader br = new BufferedReader(new FileReader(this.filePath))) {
             String line;
 
@@ -56,7 +61,8 @@ public class UserRepository {
         return userList;
     }
 
-    public void saveUsers(List<User> userList) {
+    @Override
+    public void saveData(List<User> userList) {
         // Dùng BufferedWriter để ghi file, tham số thứ 2 của FileWriter không để true
         // để nó ghi đè (overwrite) toàn bộ file thay vì viết tiếp vào cuối file.
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(this.filePath))) {
@@ -87,10 +93,8 @@ public class UserRepository {
         }
     }
 
-    /**
-     * HÀM 2: Thêm User mới (áp dụng chung cho cả Admin, Trainer, Member)
-     */
-    public boolean addUser(List<User> userList, User newUser) {
+    @Override
+    public boolean add(List<User> userList, User newUser) {
         // 1. Kiểm tra xem username đã tồn tại chưa để tránh trùng lặp
         for (User u : userList) {
             if (u.getUsername().equals(newUser.getUsername())) {
@@ -103,7 +107,7 @@ public class UserRepository {
         userList.add(newUser);
 
         // 3. Đồng bộ ngay lập tức xuống file CSV
-        saveUsers(userList);
+        saveData(userList);
         System.out.println("[ Complete ] Added account with full name: " + newUser.getFullName());
         return true;
     }
@@ -111,7 +115,8 @@ public class UserRepository {
     /**
      * HÀM 3: Xóa User theo Username
      */
-    public boolean deleteUser(List<User> userList, String username) {
+    @Override
+    public boolean delete(List<User> userList, String username) {
         User userToDelete = null;
 
         // 1. Tìm kiếm user trong List
@@ -125,7 +130,7 @@ public class UserRepository {
         // 2. Xóa và lưu lại file
         if (userToDelete != null) {
             userList.remove(userToDelete);
-            saveUsers(userList);
+            saveData(userList);
             System.out.println("[ Complete ] Deleted username: " + username);
             return true;
         } else {

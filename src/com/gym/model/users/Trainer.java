@@ -1,5 +1,6 @@
-package com.gym.model;
+package com.gym.model.users;
 
+import com.gym.repository.GymContext;
 import com.gym.repository.UserRepository;
 
 import java.util.List;
@@ -39,7 +40,7 @@ public class Trainer extends User {
 
 
     @Override
-    public void displayMenu(List<User> userList, UserRepository userRepo) {
+    public void displayMenu(GymContext context) {
 
     }
 }

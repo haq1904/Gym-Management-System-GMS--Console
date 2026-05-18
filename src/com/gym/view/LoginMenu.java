@@ -1,6 +1,7 @@
 package com.gym.view;
 
-import com.gym.model.User;
+import com.gym.model.facilities.GymMachine;
+import com.gym.model.users.User;
 
 import java.util.List;
 import java.util.Scanner;

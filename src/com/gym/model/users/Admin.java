@@ -1,5 +1,8 @@
-package com.gym.model;
+package com.gym.model.users;
 
+import com.gym.model.facilities.GymMachine;
+import com.gym.repository.GymContext;
+import com.gym.repository.MachineRepository;
 import com.gym.repository.UserRepository;
 
 import java.util.List;
@@ -14,36 +17,17 @@ public class Admin extends User {
         this.role = "Admin"; // hard code cho role
     }
 
-    //Them va xoa member
-    public void addMember(List<User> userList, Member newMember) {
-        userList.add(newMember);
-        // Sau đó gọi DatabaseManager/Repository để save đè lên file users.csv
-    }
-
-    public void deleteMember(List<User> userList, String memberUsername) {
-        // Code tìm kiếm memberUsername trong userList và remove()
-    }
-
-    //Quan ly co so và trainer
-    public void manageFacilitiesAndTrainers() {
-        // Logic menu con cho phép xem/thêm/xóa PT
-    }
-
-    //Xuat bao cao ve doanh thu
-    public void generateRevenueReport(List<User> userList) {
-        // Code duyệt qua userList, tìm các Member có status "Active",
-        // dựa vào gói tập để tính ra tổng tiền và in ra màn hình
-    }
-
-    //Xuat bao cao diem danh
-    public void generateAttendanceReport() {
-        // Code load dữ liệu từ attendance.csv lên và thống kê
-    }
-
     @Override
-    public void displayMenu(List<User> userList, UserRepository userRepo) {
+    public void displayMenu(GymContext context) {
         Scanner scanner = new Scanner(System.in);
         boolean isRunning = true;
+
+        //Lay list user và machine
+        List<User> userList = context.getUserList();
+        UserRepository userRepo = context.getUserRepo();
+        List<GymMachine> machineList = context.getMachineList();
+        MachineRepository machineRepo = context.getMachineRepo();
+
 
         while (isRunning) {
             // You can call clearScreen() here to clean the Console if needed
@@ -147,7 +131,7 @@ public class Admin extends User {
                     }
 
                     // Gọi UserRepository để lưu
-                    userRepo.addUser(userList, newUser);
+                    userRepo.add(userList, newUser);
                     break;
 
                 case "2":
@@ -161,7 +145,7 @@ public class Admin extends User {
                         System.out.println("Please ask another Administrator to perform this action.");
                     } else {
                         // Nếu không phải tự xóa, tiến hành gọi Repository để xóa
-                        userRepo.deleteUser(userList, usernameToDelete);
+                        userRepo.delete(userList, usernameToDelete);
                     }
                     break;
 
@@ -219,7 +203,6 @@ public class Admin extends User {
         return new Member(username, password, fullName, type, status);
     }
 
-    // Hàm hỗ trợ 2: Chuyên dùng để nhập dữ liệu và tạo Trainer
     private Trainer createNewTrainer(String username, String password, String fullName, Scanner scanner) {
         System.out.print("Enter Specialty (e.g., Yoga, Weightlifting): ");
         String specialty = scanner.nextLine();
