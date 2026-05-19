@@ -1,11 +1,6 @@
 package com.gym.model.users;
 
-import com.gym.repository.GymContext;
-import com.gym.repository.UserRepository;
-import com.gym.view.AdminView;
 import com.gym.view.IDisplayMenu;
-
-import java.util.List;
 
 public abstract class User {
 
@@ -54,6 +49,11 @@ public abstract class User {
     public String getPassword() {
         return password;
     }
+
+    public void setFullName(String fullName) {this.fullName = fullName;}
+
+    public void setPassword(String password) {this.password = password;}
+
 
     public abstract IDisplayMenu getMenu();
 

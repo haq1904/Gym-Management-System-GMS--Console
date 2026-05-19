@@ -9,11 +9,11 @@ import java.util.List;
 public class Member extends User {
     private String membershipType; // Loai goi tap
     private String subscriptionStatus; // Trang thai(Activated , Expired)
+    private String workoutProgress; // Tien do
 
     public String getMembershipType() {
         return membershipType;
     }
-
     //Get status
     public String getSubscriptionStatus() {
         return subscriptionStatus;
@@ -23,7 +23,11 @@ public class Member extends User {
         return workoutProgress;
     }
 
-    private String workoutProgress; // Tien do)
+    public void setSubscriptionStatus(String subscriptionStatus) {
+        this.subscriptionStatus = subscriptionStatus;
+    }
+
+
 
     public Member(String username, String password, String fullName, String membershipType, String subscriptionStatus) {
         super(username, password, fullName, "Member");
