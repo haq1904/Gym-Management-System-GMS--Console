@@ -45,12 +45,12 @@ public class WorkoutScheduleManagement {
                 Map<Integer, Member> searchResults = new HashMap<>();
                 int stt = 1;
 
-                String normalizedSearchName = removeAccents(searchName).toLowerCase();
+                String normalizedSearchName = Helper.removeAccents(searchName).toLowerCase();
 
                 for (User u : userList) {
                     if (u instanceof Member) {
                         // LỘT DẤU TÊN CỦA USER TRONG DANH SÁCH
-                        String normalizedFullName = removeAccents(u.getFullName()).toLowerCase();
+                        String normalizedFullName = Helper.removeAccents(u.getFullName()).toLowerCase();
 
                         // SO SÁNH 2 CHUỖI ĐÃ SẠCH DẤU (Gõ "ho" tự nhận "Hồ", "Hố", "Hổ")
                         if (normalizedFullName.contains(normalizedSearchName)) {
@@ -388,19 +388,6 @@ public class WorkoutScheduleManagement {
         return null;
     }
 
-    private String removeAccents(String str) {
-        if (str == null) return null;
-
-        // 1. Phân tách các ký tự có dấu thành ký tự gốc + dấu (VD: 'ễ' -> 'e' + '~' + '^')
-        String temp = Normalizer.normalize(str, Normalizer.Form.NFD);
-
-        // 2. Dùng Regex quét sạch các cái dấu vừa bị tách ra
-        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-        temp = pattern.matcher(temp).replaceAll("");
-
-        // 3. Xử lý nốt "đặc sản" chữ Đ của tiếng Việt
-        return temp.replace('đ', 'd').replace('Đ', 'D');
-    }
 
     private void printScheduleTable(java.util.List<WorkoutSchedule> schedulesToPrint, boolean isTrainer) {
         String columnHeader = isTrainer ? "Member Name" : "Trainer Name";

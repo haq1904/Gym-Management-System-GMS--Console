@@ -1,24 +1,23 @@
 package com.gym.view;
 
-
 import com.gym.model.users.User;
 import com.gym.repository.GymContext;
-import com.gym.repository.IRepository;
-
-import java.util.List;
 import java.util.Scanner;
 import com.gym.manage.*;
 
 public class AdminView implements IDisplayMenu {
-
+    private MemberShipManagement memberShipManagement;
+    private ReportManagement reportManagement;
+    private AttendanceTracking attendanceTracking;
     private Scanner scanner = new Scanner(System.in);
 
-
-    // Hàm khởi chạy Menu chính của Admin
     @Override
     public void displayMenu(GymContext context, User loggedInAdmin) {
-        MemberShipManagement memberShipManagement = new MemberShipManagement(context);
+        memberShipManagement = new MemberShipManagement(context);
+        reportManagement = new ReportManagement();
+        attendanceTracking = new AttendanceTracking(context);
         boolean isRunning = true;
+
         while (isRunning) {
             System.out.println("\n=========================================");
             System.out.println("          ADMINISTRATOR MENU             ");
@@ -31,19 +30,19 @@ public class AdminView implements IDisplayMenu {
             System.out.println("=========================================");
             System.out.print("-> Select an option (0-3): ");
 
-            String choice = scanner.nextLine();
+            String choice = scanner.nextLine().trim();
 
             switch (choice) {
                 case "1":
                     System.out.println("\n[ FEATURE ] Opening Facilities & Trainers Management...");
-                    // Gọi hàm displayFacilitiesManagementMenu() ở đây
                     break;
                 case "2":
                     System.out.println("\nOpening Member Management...");
-                    memberShipManagement.displayMemberManagementMenu();
+                    displayMemberManagementMenu();
                     break;
                 case "3":
-                    System.out.println("\n[ FEATURE ] Generating statistical reports...");
+                    System.out.println("\nOpening Reports Menu...");
+                    displayViewReportMenu();
                     break;
                 case "0":
                     System.out.println("\n[ LOGOUT ] Returning to the main screen...");
@@ -54,15 +53,124 @@ public class AdminView implements IDisplayMenu {
                     break;
             }
 
-            if (isRunning) {
+            if (isRunning && !choice.equals("2") && !choice.equals("3")) {
                 System.out.print("Press Enter to continue...");
                 scanner.nextLine();
             }
         }
     }
 
+    private void displayViewReportMenu() {
+        boolean isReporting = true;
+        while (isReporting) {
+            System.out.println("\n--- REPORT MANAGEMENT MENU ---");
+            System.out.println("1. Total Revenue from Subscriptions");
+            System.out.println("2. Members Attendance Reports");
+            System.out.println("0. Back to Main Admin Menu");
+            System.out.print("-> Select an option (0-2): ");
 
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    // In ra console tượng trưng theo yêu cầu của ní
+                    System.out.println("\n=======================================================");
+                    System.out.println("📊 [ SUBSCRIPTIONS REVENUE REPORT ]                    ");
+                    System.out.println("-------------------------------------------------------");
+                    System.out.println(" Total Active Subscriptions : 45                       ");
+                    System.out.println(" Total Expired Subscriptions: 12                       ");
+                    System.out.println(" TOTAL ESTIMATED REVENUE   : $15,450.00                ");
+                    System.out.println("=======================================================");
+                    System.out.print("Press Enter to return...");
+                    scanner.nextLine();
+                    break;
 
+                case "2":
+                    // Gọi tiếp menu con hiển thị các tiêu chí lọc của Attendance
+                    displayAttendanceReportSubMenu();
+                    break;
 
+                case "0":
+                    System.out.println("[ INFO ] Returning to Main Admin Menu...");
+                    isReporting = false;
+                    break;
 
+                default:
+                    System.out.println("[ WARNING ] Invalid option. Please enter 0, 1, or 2.");
+                    break;
+            }
+        }
+    }
+
+    private void displayAttendanceReportSubMenu(){
+        boolean isAttendanceReporting = true;
+        while (isAttendanceReporting) {
+            System.out.println("\n--- GYM ATTENDANCE REPORTS ---");
+            System.out.println("1. View All Attendance History");
+            System.out.println("2. Filter by Specific Date (Lọc theo Ngày)");
+            System.out.println("3. Filter by Member Name / Username");
+            System.out.println("4. Filter by Trainer Name / Username");
+            System.out.println("0. Back to Reports Menu");
+            System.out.print("-> Select an option (0-4): ");
+
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    attendanceTracking.handleViewAllHistory(); // Gọi hàm xử lý cốt lõi
+                    break;
+                case "2":
+                    attendanceTracking.handleFilterByDate(); // Gọi hàm xử lý cốt lõi
+                    break;
+                case "3":
+                    attendanceTracking.handleFilterByMember(); // Gọi hàm xử lý cốt lõi
+                    break;
+                case "4":
+                    attendanceTracking.handleFilterByTrainer(); // Gọi hàm xử lý cốt lõi
+                    break;
+                case "0":
+                    System.out.println("[ INFO ] Returning to Reports Menu...");
+                    isAttendanceReporting = false;
+                    break;
+                default:
+                    System.out.println("[ WARNING ] Invalid option. Please enter from 0 to 4.");
+                    break;
+            }
+        }
+    }
+
+    private void displayMemberManagementMenu() {
+        boolean isManaging = true;
+        while (isManaging) {
+            System.out.println("\n--- MEMBER MANAGEMENT MENU ---");
+            System.out.println("1. Add a new Member");
+            System.out.println("2. Update Profile");
+            System.out.println("3. Delete a Member");
+            System.out.println("4. View Member Information");
+            System.out.println("0. Back to Main Admin Menu");
+            System.out.print("-> Select an option (0-4): ");
+
+            String choice = scanner.nextLine().trim();
+
+            switch (choice) {
+                case "1":
+                    memberShipManagement.handleAddMember();
+                    break;
+                case "2":
+                    memberShipManagement.handleUpdateProfileMember();
+                    break;
+                case "3":
+                    memberShipManagement.handleDeleteMember();
+                    break;
+                case "4":
+                    memberShipManagement.handleViewMemberInfo();
+                    break;
+                case "0":
+                    System.out.println("[ INFO ] Returning to Main Admin Menu...");
+                    isManaging = false;
+                    break;
+                default:
+                    System.out.println("[ WARNING ] Invalid option. Please enter from 0 to 4.");
+                    break;
+            }
+        }
+    }
 }

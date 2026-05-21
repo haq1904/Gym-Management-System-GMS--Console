@@ -18,46 +18,7 @@ public class MemberShipManagement {
         userList = context.getUserList();
     }
 
-
-    public void displayMemberManagementMenu() {
-        boolean isManaging = true;
-
-        while (isManaging) {
-            System.out.println("\n--- MEMBER MANAGEMENT MENU ---");
-            System.out.println("1. Add a new Member");
-            System.out.println("2. Update Profile");
-            System.out.println("3. Delete a Member");
-            System.out.println("4. View Member Information");
-            System.out.println("0. Back to Main Admin Menu");
-            System.out.print("-> Select an option (0-3): ");
-
-            String choice = scanner.nextLine();
-
-            switch (choice) {
-                case "1": // --- TÍNH NĂNG THÊM MEMBER ---
-                    handleAddMember();
-                    break;
-                case "2": // --- TÍNH NĂNG UPDATE MEMBER ---
-                    handleUpdateProfileMember();
-                    break;
-                case "3": // --- TÍNH NĂNG DELETE MEMBER ---
-                    handleDeleteMember();
-                    break;
-                case "4": // --- TÍNH NĂNG DELETE MEMBER ---
-                    handleViewMemberInfo();
-                    break;
-                case "0":
-                    System.out.println("[ INFO ] Returning to Main Menu...");
-                    isManaging = false;
-                    break;
-                default:
-                    System.out.println("[ WARNING ] Invalid option. Please enter from 0 to 3.");
-                    break;
-            }
-        }
-    }
-
-    private void handleAddMember(){
+    public void handleAddMember(){
         System.out.println("\n[ ADD NEW MEMBER ]");
         String newUsername = "";
         while (true) {
@@ -95,7 +56,7 @@ public class MemberShipManagement {
         userRepo.add(userList, newMember);
     }
 
-    private void handleUpdateProfileMember(){
+    public void handleUpdateProfileMember(){
         System.out.println("\n[ UPDATE MEMBER ]");
         System.out.print("Enter Username of the member to update: ");
         String usernameToUpdate = scanner.nextLine().trim();
@@ -192,7 +153,7 @@ public class MemberShipManagement {
         }
     }
 
-    private void handleDeleteMember(){
+    public void handleDeleteMember(){
         System.out.println("\n[ DELETE MEMBER ]");
         System.out.print("Enter the Username of member to delete: ");
         String usernameToDelete = scanner.nextLine().trim();
@@ -213,7 +174,7 @@ public class MemberShipManagement {
         }
     }
 
-    private Member createNewMember(String username, String password, String fullName) {
+    public Member createNewMember(String username, String password, String fullName) {
         String type = "";
         String status = "";
 
@@ -249,7 +210,7 @@ public class MemberShipManagement {
         return new Member(username, password, fullName, type, status);
     }
 
-    private void handleViewMemberInfo() {
+    public void handleViewMemberInfo() {
         boolean isViewing = true; // Thêm cờ để lặp lại menu này
 
         while (isViewing) {
