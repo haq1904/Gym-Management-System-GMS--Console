@@ -8,8 +8,6 @@ import com.gym.repository.IRepository;
 
 
 import java.text.Normalizer;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -204,7 +202,7 @@ public class WorkoutScheduleManagement {
         System.out.println("================================================================================================");
 
         // Bước 1: Lọc danh sách lịch dựa theo Role
-        java.util.List<WorkoutSchedule> filteredSchedules = new java.util.ArrayList<>();
+        List<WorkoutSchedule> filteredSchedules = new ArrayList<>();
         for (WorkoutSchedule s : scheduleList) {
             // Nếu là Trainer thì lọc theo tên Trainer, ngược lại thì lọc theo tên Member
             if (isTrainer && s.getTrainerUsername().equalsIgnoreCase(username)) {
@@ -220,13 +218,13 @@ public class WorkoutScheduleManagement {
         }
 
         // Bước 2: Sắp xếp theo Giờ
-        java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         filteredSchedules.sort((s1, s2) ->
                 java.time.LocalTime.parse(s1.getTime(), timeFormatter).compareTo(java.time.LocalTime.parse(s2.getTime(), timeFormatter))
         );
 
         // Bước 3: Tìm danh sách Ngày duy nhất
-        java.util.List<String> uniqueDates = new java.util.ArrayList<>();
+        List<String> uniqueDates = new ArrayList<>();
         for (WorkoutSchedule s : filteredSchedules) {
             if (!uniqueDates.contains(s.getDate())) {
                 uniqueDates.add(s.getDate());
@@ -234,7 +232,7 @@ public class WorkoutScheduleManagement {
         }
 
         // Sắp xếp Ngày theo thời gian thực tế
-        java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         uniqueDates.sort((d1, d2) ->
                 java.time.LocalDate.parse(d1, dateFormatter).compareTo(java.time.LocalDate.parse(d2, dateFormatter))
         );
@@ -245,39 +243,14 @@ public class WorkoutScheduleManagement {
         // Bước 4: In bảng theo từng Ngày
         for (String date : uniqueDates) {
             System.out.println("\n  DATE: " + date);
-            System.out.println("------------------------------------------------------------------------------------------------");
-            System.out.printf("%-10s | %-12s | %-25s | %-25s | %-12s\n", "ID", "Time", columnHeader, "Exercises", "Status");
-            System.out.println("------------------------------------------------------------------------------------------------");
 
+            List<WorkoutSchedule> dailySchedules = new ArrayList<>();
             for (WorkoutSchedule s : filteredSchedules) {
                 if (s.getDate().equals(date)) {
-                    String formattedExercises = s.getExercises().replace("|", ", ");
-
-                    if (formattedExercises.length() > 23) {
-                        formattedExercises = formattedExercises.substring(0, 20) + "...";
-                    }
-
-                    // 🔥 TÌM FULL NAME THÔNG MINH
-                    // Nếu tôi là Trainer, đi tìm Full Name của Member. Nếu tôi là Member, đi tìm Full Name của Trainer.
-                    String targetUsername = isTrainer ? s.getMemberUsername() : s.getTrainerUsername();
-                    String displayName = targetUsername; // Dự phòng
-
-                    for (User u : userList) {
-                        if (u.getUsername().equalsIgnoreCase(targetUsername)) {
-                            displayName = u.getFullName();
-                            break;
-                        }
-                    }
-
-                    System.out.printf("%-10s | %-12s | %-25s | %-25s | %-12s\n",
-                            s.getScheduleId(),
-                            s.getTime(),
-                            displayName, // Tên đã được tra cứu linh hoạt
-                            formattedExercises,
-                            s.getProgressStatus()
-                    );
+                    dailySchedules.add(s);
                 }
             }
+            printScheduleTable(dailySchedules, isTrainer);
             System.out.println("------------------------------------------------------------------------------------------------");
         }
     }
@@ -323,29 +296,9 @@ public class WorkoutScheduleManagement {
 
             // --- BƯỚC 3: IN BẢNG DANH SÁCH LỊCH ĐỂ USER CHỌN ID ---
             System.out.println("\n--- SCHEDULES ON " + searchDate + " ---");
-            String columnHeader = isTrainer ? "Member Name" : "Trainer Name";
-            System.out.printf("%-10s | %-8s | %-20s | %-25s | %-12s\n", "ID", "Time", columnHeader, "Exercises", "Status");
-            System.out.println("--------------------------------------------------------------------------------------");
 
-            for (WorkoutSchedule s : matchedSchedules) {
-                String targetUsername = isTrainer ? s.getMemberUsername() : s.getTrainerUsername();
-                String displayName = targetUsername;
+            printScheduleTable(matchedSchedules, isTrainer);
 
-                // Dò tìm Full Name cho giao diện đẹp
-                for (User u : userList) {
-                    if (u.getUsername().equals(targetUsername)) {
-                        displayName = u.getFullName();
-                        break;
-                    }
-                }
-
-                // Cắt tên và bài tập nếu quá dài để không vỡ bảng
-                String exercises = s.getExercises().replace("|", ", ");
-                if (exercises.length() > 23) exercises = exercises.substring(0, 20) + "...";
-
-                System.out.printf("%-10s | %-8s | %-20s | %-25s | %-12s\n",
-                        s.getScheduleId(), s.getTime(), displayName, exercises, s.getProgressStatus());
-            }
             System.out.println("--------------------------------------------------------------------------------------");
 
             // --- BƯỚC 4: CHỌN ID LỊCH ĐỂ CẬP NHẬT ---
@@ -447,5 +400,44 @@ public class WorkoutScheduleManagement {
 
         // 3. Xử lý nốt "đặc sản" chữ Đ của tiếng Việt
         return temp.replace('đ', 'd').replace('Đ', 'D');
+    }
+
+    private void printScheduleTable(java.util.List<WorkoutSchedule> schedulesToPrint, boolean isTrainer) {
+        String columnHeader = isTrainer ? "Member Name" : "Trainer Name";
+
+
+        System.out.println("------------------------------------------------------------------------------------------");
+        System.out.printf("%-10s | %-8s | %-25s | %-25s | %-12s\n", "ID", "Time", columnHeader, "Exercises", "Status");
+        System.out.println("------------------------------------------------------------------------------------------");
+
+        for (WorkoutSchedule s : schedulesToPrint) {
+            // 1. Format bài tập (Cắt nếu quá dài)
+            String formattedExercises = s.getExercises().replace("|", ", ");
+            if (formattedExercises.length() > 23) {
+                formattedExercises = formattedExercises.substring(0, 20) + "...";
+            }
+
+            // 2. Tìm Full Name thông minh
+            String targetUsername = isTrainer ? s.getMemberUsername() : s.getTrainerUsername();
+            String displayName = targetUsername; // Dự phòng
+            for (User u : userList) {
+                if (u.getUsername().equalsIgnoreCase(targetUsername)) {
+                    displayName = u.getFullName();
+                    break;
+                }
+            }
+
+            // Cắt Full Name nếu quá dài (tránh vỡ cột 25)
+            if (displayName.length() > 23) displayName = displayName.substring(0, 20) + "...";
+
+            // 3. In dữ liệu
+            System.out.printf("%-10s | %-8s | %-25s | %-25s | %-12s\n",
+                    s.getScheduleId(),
+                    s.getTime(),
+                    displayName,
+                    formattedExercises,
+                    s.getProgressStatus()
+            );
+        }
     }
 }
