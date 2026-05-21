@@ -3,6 +3,7 @@ package com.gym.model.users;
 import com.gym.repository.GymContext;
 import com.gym.repository.UserRepository;
 import com.gym.view.IDisplayMenu;
+import com.gym.view.TrainerView;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Trainer extends User {
 
     @Override
     public IDisplayMenu getMenu() {
-        return null;
+        return new TrainerView();
     }
 
     //Xep lich cho member

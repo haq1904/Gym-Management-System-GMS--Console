@@ -13,15 +13,12 @@ public class AdminView implements IDisplayMenu {
 
     private Scanner scanner = new Scanner(System.in);
 
+
     // Hàm khởi chạy Menu chính của Admin
     @Override
     public void displayMenu(GymContext context, User loggedInAdmin) {
+        MemberShipManagement memberShipManagement = new MemberShipManagement(context);
         boolean isRunning = true;
-
-        List<User> userList = context.getUserList();
-        IRepository<User> userRepo = context.getUserRepo();
-        // Lấy machineList và machineRepo từ context ở đây khi cần làm tính năng Quản lý cơ sở vật chất
-
         while (isRunning) {
             System.out.println("\n=========================================");
             System.out.println("          ADMINISTRATOR MENU             ");
@@ -43,8 +40,7 @@ public class AdminView implements IDisplayMenu {
                     break;
                 case "2":
                     System.out.println("\nOpening Member Management...");
-                    MemberShipManagement memberShipManagement = new MemberShipManagement();
-                    memberShipManagement.displayMemberManagementMenu(userList,userRepo);
+                    memberShipManagement.displayMemberManagementMenu();
                     break;
                 case "3":
                     System.out.println("\n[ FEATURE ] Generating statistical reports...");

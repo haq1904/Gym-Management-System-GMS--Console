@@ -2,6 +2,7 @@ package com.gym.manage;
 
 import com.gym.model.users.Member;
 import com.gym.model.users.User;
+import com.gym.repository.GymContext;
 import com.gym.repository.IRepository;
 
 import java.util.List;
@@ -9,8 +10,16 @@ import java.util.Scanner;
 
 public class MemberShipManagement {
     private Scanner scanner = new Scanner(System.in);
+    IRepository<User> userRepo;
+    List<User> userList ;
 
-    public void displayMemberManagementMenu(List<User> userList, IRepository<User> userRepo) {
+    public MemberShipManagement(GymContext context) {
+        userRepo = context.getUserRepo();
+        userList = context.getUserList();
+    }
+
+
+    public void displayMemberManagementMenu() {
         boolean isManaging = true;
 
         while (isManaging) {
@@ -26,16 +35,16 @@ public class MemberShipManagement {
 
             switch (choice) {
                 case "1": // --- TÍNH NĂNG THÊM MEMBER ---
-                    handleAddMember(userList, userRepo);
+                    handleAddMember();
                     break;
                 case "2": // --- TÍNH NĂNG UPDATE MEMBER ---
-                    handleUpdateProfileMember(userList, userRepo);
+                    handleUpdateProfileMember();
                     break;
                 case "3": // --- TÍNH NĂNG DELETE MEMBER ---
-                    handleDeleteMember(userList, userRepo);
+                    handleDeleteMember();
                     break;
                 case "4": // --- TÍNH NĂNG DELETE MEMBER ---
-                    handleViewMemberInfo(userList);
+                    handleViewMemberInfo();
                     break;
                 case "0":
                     System.out.println("[ INFO ] Returning to Main Menu...");
@@ -48,7 +57,7 @@ public class MemberShipManagement {
         }
     }
 
-    private void handleAddMember(List<User> userList, IRepository<User> userRepo){
+    private void handleAddMember(){
         System.out.println("\n[ ADD NEW MEMBER ]");
         String newUsername = "";
         while (true) {
@@ -86,14 +95,13 @@ public class MemberShipManagement {
         userRepo.add(userList, newMember);
     }
 
-    private void handleUpdateProfileMember(List<User> userList, IRepository<User> userRepo){
+    private void handleUpdateProfileMember(){
         System.out.println("\n[ UPDATE MEMBER ]");
         System.out.print("Enter Username of the member to update: ");
         String usernameToUpdate = scanner.nextLine().trim();
 
         Member foundMember = null;
         for (User u : userList) {
-            // Sửa thành equalsIgnoreCase
             if (u.getUsername().equals(usernameToUpdate) && u instanceof Member) {
                 foundMember = (Member) u;
                 break;
@@ -184,7 +192,7 @@ public class MemberShipManagement {
         }
     }
 
-    private void handleDeleteMember(List<User> userList, IRepository<User> userRepo){
+    private void handleDeleteMember(){
         System.out.println("\n[ DELETE MEMBER ]");
         System.out.print("Enter the Username of member to delete: ");
         String usernameToDelete = scanner.nextLine().trim();
@@ -192,10 +200,8 @@ public class MemberShipManagement {
         boolean isTargetAMember = false;
 
         for (User u : userList) {
-            if (u.getUsername().equals(usernameToDelete)) {
-                if (u instanceof Member) {
-                    isTargetAMember = true;
-                }
+            if (u.getUsername().equals(usernameToDelete) && u instanceof  Member) {
+                isTargetAMember = true;
                 break;
             }
         }
@@ -244,7 +250,7 @@ public class MemberShipManagement {
     }
 
     // --- TÍNH NĂNG 4: VIEW MEMBER ---
-    private void handleViewMemberInfo(List<User> userList) {
+    private void handleViewMemberInfo() {
         boolean isViewing = true; // Thêm cờ để lặp lại menu này
 
         while (isViewing) {
