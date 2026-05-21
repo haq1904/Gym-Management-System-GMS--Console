@@ -3,6 +3,7 @@ package com.gym.model.users;
 import com.gym.repository.GymContext;
 import com.gym.repository.UserRepository;
 import com.gym.view.IDisplayMenu;
+import com.gym.view.MemberView;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class Member extends User {
 
     @Override
     public IDisplayMenu getMenu() {
-        return null;
+        return new MemberView();
     }
 
     //Xem lich tap

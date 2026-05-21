@@ -249,7 +249,6 @@ public class MemberShipManagement {
         return new Member(username, password, fullName, type, status);
     }
 
-    // --- TÍNH NĂNG 4: VIEW MEMBER ---
     private void handleViewMemberInfo() {
         boolean isViewing = true; // Thêm cờ để lặp lại menu này
 

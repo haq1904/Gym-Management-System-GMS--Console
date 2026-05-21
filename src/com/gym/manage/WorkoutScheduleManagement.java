@@ -158,7 +158,7 @@ public class WorkoutScheduleManagement {
                 }
 
                 // 2.3 Check trùng lịch
-                String conflictError = checkScheduleConflict(trainerUsername, memberUsername, date, time);
+                String conflictError = checkScheduleConflict(memberUsername, date, time);
                 if (conflictError != null) {
                     System.out.println(conflictError);
                     System.out.println("[ INFO ] Please choose a different Date or Time.");
@@ -196,68 +196,75 @@ public class WorkoutScheduleManagement {
         }
     }
 
-    private String checkScheduleConflict(String trainerUsername, String memberUsername, String date, String time) {
-        for (WorkoutSchedule s : scheduleList) {
-            if (s.getDate().equals(date) && s.getTime().equals(time)) {
-                if (s.getMemberUsername().equals(memberUsername)) {
-                    return "[ ERROR ] Scheduling Conflict: Member '" + memberUsername + "' is already scheduled for another workout at " + time + " on " + date + "!";
-                }
-            }
-        }
-        return null;
-    }
+    public void displaySchedules(String username, boolean isTrainer) {
+        System.out.println("\n================================================================================================");
+        // Tùy biến tiêu đề dựa theo Role
+        String title = isTrainer ? "--- MY ASSIGNED WORKOUT SCHEDULES ---" : "--- MY WORKOUT SCHEDULES ---";
+        System.out.println("                           " + title + "                                         ");
+        System.out.println("================================================================================================");
 
-    public void viewTrainerSchedules(String trainerUsername) {
-        System.out.println("\n=======================================================");
-        System.out.println("       --- MY ASSIGNED WORKOUT SCHEDULES ---           ");
-        System.out.println("=======================================================");
-
-        List<WorkoutSchedule> trainerSchedules = new ArrayList<>();
+        // Bước 1: Lọc danh sách lịch dựa theo Role
+        java.util.List<WorkoutSchedule> filteredSchedules = new java.util.ArrayList<>();
         for (WorkoutSchedule s : scheduleList) {
-            if (s.getTrainerUsername().equals(trainerUsername)) {
-                trainerSchedules.add(s);
+            // Nếu là Trainer thì lọc theo tên Trainer, ngược lại thì lọc theo tên Member
+            if (isTrainer && s.getTrainerUsername().equalsIgnoreCase(username)) {
+                filteredSchedules.add(s);
+            } else if (!isTrainer && s.getMemberUsername().equalsIgnoreCase(username)) {
+                filteredSchedules.add(s);
             }
         }
 
-        if (trainerSchedules.isEmpty()) {
-            System.out.println("[ INFO ] You haven't assigned any schedules yet.");
+        if (filteredSchedules.isEmpty()) {
+            System.out.println("[ INFO ] You don't have any workout schedules yet.");
             return;
         }
 
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        trainerSchedules.sort((s1, s2) ->
-                LocalTime.parse(s1.getTime(), timeFormatter).compareTo(LocalTime.parse(s2.getTime(), timeFormatter))
+        // Bước 2: Sắp xếp theo Giờ
+        java.time.format.DateTimeFormatter timeFormatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+        filteredSchedules.sort((s1, s2) ->
+                java.time.LocalTime.parse(s1.getTime(), timeFormatter).compareTo(java.time.LocalTime.parse(s2.getTime(), timeFormatter))
         );
 
-        List<String> uniqueDates = new ArrayList<>();
-        for (WorkoutSchedule s : trainerSchedules) {
+        // Bước 3: Tìm danh sách Ngày duy nhất
+        java.util.List<String> uniqueDates = new java.util.ArrayList<>();
+        for (WorkoutSchedule s : filteredSchedules) {
             if (!uniqueDates.contains(s.getDate())) {
                 uniqueDates.add(s.getDate());
             }
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        uniqueDates.sort((d1, d2) -> LocalDate.parse(d1, formatter).compareTo(LocalDate.parse(d2, formatter)));
+        // Sắp xếp Ngày theo thời gian thực tế
+        java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        uniqueDates.sort((d1, d2) ->
+                java.time.LocalDate.parse(d1, dateFormatter).compareTo(java.time.LocalDate.parse(d2, dateFormatter))
+        );
 
+        // Tùy biến Tên cột dựa theo Role
+        String columnHeader = isTrainer ? "Member Name" : "Trainer Name";
+
+        // Bước 4: In bảng theo từng Ngày
         for (String date : uniqueDates) {
-            System.out.println("\nDATE: " + date);
+            System.out.println("\n  DATE: " + date);
             System.out.println("------------------------------------------------------------------------------------------------");
-            // In tiêu đề cột dạng bảng cho đẹp mắt và dễ nhìn
-            System.out.printf("%-10s | %-12s | %-25s | %-25s | %-12s\n", "ID", "Time", "Member", "Exercises", "Status");
+            System.out.printf("%-10s | %-12s | %-25s | %-25s | %-12s\n", "ID", "Time", columnHeader, "Exercises", "Status");
             System.out.println("------------------------------------------------------------------------------------------------");
 
-            // Quét danh sách lịch của Trainer xem dòng nào khớp với ngày đang xét thì in ra
-            for (WorkoutSchedule s : trainerSchedules) {
+            for (WorkoutSchedule s : filteredSchedules) {
                 if (s.getDate().equals(date)) {
                     String formattedExercises = s.getExercises().replace("|", ", ");
 
                     if (formattedExercises.length() > 23) {
                         formattedExercises = formattedExercises.substring(0, 20) + "...";
                     }
-                    String memberDisplayName = "";
+
+                    // 🔥 TÌM FULL NAME THÔNG MINH
+                    // Nếu tôi là Trainer, đi tìm Full Name của Member. Nếu tôi là Member, đi tìm Full Name của Trainer.
+                    String targetUsername = isTrainer ? s.getMemberUsername() : s.getTrainerUsername();
+                    String displayName = targetUsername; // Dự phòng
+
                     for (User u : userList) {
-                        if (u.getUsername().equals(s.getMemberUsername())) {
-                            memberDisplayName = u.getFullName();
+                        if (u.getUsername().equalsIgnoreCase(targetUsername)) {
+                            displayName = u.getFullName();
                             break;
                         }
                     }
@@ -265,7 +272,7 @@ public class WorkoutScheduleManagement {
                     System.out.printf("%-10s | %-12s | %-25s | %-25s | %-12s\n",
                             s.getScheduleId(),
                             s.getTime(),
-                            memberDisplayName,
+                            displayName, // Tên đã được tra cứu linh hoạt
                             formattedExercises,
                             s.getProgressStatus()
                     );
@@ -275,41 +282,111 @@ public class WorkoutScheduleManagement {
         }
     }
 
-    public void viewMemberSchedules(List<WorkoutSchedule> scheduleList, String memberUsername) {
-        System.out.println("\n--- MY SCHEDULES (" + memberUsername + ") ---");
-        int count = 0;
-        for (WorkoutSchedule s : scheduleList) {
-            if (s.getMemberUsername().equalsIgnoreCase(memberUsername)) {
-                printScheduleInfo(s);
-                count++;
+    public void updateProgress(String username, boolean isTrainer) {
+        while (true) {
+            System.out.println("\n[ UPDATE PROGRESS ]");
+            String searchDate = "";
+
+            // --- BƯỚC 1: VÒNG LẶP NHẬP VÀ KIỂM TRA ĐỊNH DẠNG NGÀY ---
+            while (true) {
+                System.out.print("Enter Date to search schedules (dd/MM/yyyy) or '0' to return to Menu: ");
+                searchDate = scanner.nextLine().trim();
+
+                if (searchDate.equals("0")) {
+                    System.out.println("[ INFO ] Action canceled. Returning to Menu...");
+                    return; // Lối thoát hiểm an toàn về Menu
+                }
+
+                if (searchDate.matches("^[0-9]{2}/[0-9]{2}/[0-9]{4}$")) {
+                    break; // Định dạng chuẩn -> Qua phần tìm kiếm
+                }
+                System.out.println("[ ERROR ] Invalid Date format! Please use dd/MM/yyyy.");
             }
-        }
-        if (count == 0) {
-            System.out.println("[ INFO ] You don't have any workout schedules yet.");
-        }
-    }
 
-    public void updateProgress(List<WorkoutSchedule> scheduleList, IRepository<WorkoutSchedule> scheduleRepo, String memberUsername) {
-        System.out.println("\n[ UPDATE PROGRESS ]");
-        System.out.print("Enter Schedule ID to update (e.g., SCH001): ");
-        String targetId = scanner.nextLine().trim();
-
-        WorkoutSchedule targetSchedule = null;
-
-        for (WorkoutSchedule s : scheduleList) {
-            if (s.getScheduleId().equalsIgnoreCase(targetId) && s.getMemberUsername().equalsIgnoreCase(memberUsername)) {
-                targetSchedule = s;
-                break;
+            // --- BƯỚC 2: LỌC DANH SÁCH LỊCH TRONG NGÀY DỰA VÀO ROLE ---
+            List<WorkoutSchedule> matchedSchedules = new ArrayList<>();
+            for (WorkoutSchedule s : scheduleList) {
+                if (s.getDate().equals(searchDate)) {
+                    // Nếu là Trainer thì lọc theo tên Trainer, Member thì lọc theo tên Member
+                    if (isTrainer && s.getTrainerUsername().equals(username)) {
+                        matchedSchedules.add(s);
+                    } else if (!isTrainer && s.getMemberUsername().equals(username)) {
+                        matchedSchedules.add(s);
+                    }
+                }
             }
-        }
 
-        if (targetSchedule == null) {
-            System.out.println("[ ERROR ] Schedule ID not found or it does not belong to you!");
-        } else {
-            System.out.println("Current Status: " + targetSchedule.getProgressStatus());
+            if (matchedSchedules.isEmpty()) {
+                System.out.println("[ INFO ] No schedules found on " + searchDate + ". Please try another date.");
+                continue; // Không có lịch thì quay lại vòng lặp bắt nhập ngày khác
+            }
+
+            // --- BƯỚC 3: IN BẢNG DANH SÁCH LỊCH ĐỂ USER CHỌN ID ---
+            System.out.println("\n--- SCHEDULES ON " + searchDate + " ---");
+            String columnHeader = isTrainer ? "Member Name" : "Trainer Name";
+            System.out.printf("%-10s | %-8s | %-20s | %-25s | %-12s\n", "ID", "Time", columnHeader, "Exercises", "Status");
+            System.out.println("--------------------------------------------------------------------------------------");
+
+            for (WorkoutSchedule s : matchedSchedules) {
+                String targetUsername = isTrainer ? s.getMemberUsername() : s.getTrainerUsername();
+                String displayName = targetUsername;
+
+                // Dò tìm Full Name cho giao diện đẹp
+                for (User u : userList) {
+                    if (u.getUsername().equals(targetUsername)) {
+                        displayName = u.getFullName();
+                        break;
+                    }
+                }
+
+                // Cắt tên và bài tập nếu quá dài để không vỡ bảng
+                String exercises = s.getExercises().replace("|", ", ");
+                if (exercises.length() > 23) exercises = exercises.substring(0, 20) + "...";
+
+                System.out.printf("%-10s | %-8s | %-20s | %-25s | %-12s\n",
+                        s.getScheduleId(), s.getTime(), displayName, exercises, s.getProgressStatus());
+            }
+            System.out.println("--------------------------------------------------------------------------------------");
+
+            // --- BƯỚC 4: CHỌN ID LỊCH ĐỂ CẬP NHẬT ---
+            WorkoutSchedule targetSchedule = null;
+            while (true) {
+                System.out.print("Enter Schedule ID to update (e.g., SCH001) or '0' to search another date: ");
+                String targetId = scanner.nextLine().trim();
+
+                if (targetId.equals("0")) {
+                    break; // Phá vòng lặp chọn ID, hệ thống tự động quay lại vòng lặp lớn (nhập ngày)
+                }
+
+                for (WorkoutSchedule s : matchedSchedules) {
+                    if (s.getScheduleId().equalsIgnoreCase(targetId)) {
+                        targetSchedule = s;
+                        break;
+                    }
+                }
+
+                if (targetSchedule == null) {
+                    System.out.println("[ ERROR ] Schedule ID not found in the list above. Please type exactly as shown.");
+                } else {
+                    break; // Đã tìm thấy lịch hợp lệ
+                }
+            }
+
+            // Nếu user gõ '0' ở phần chọn ID (targetSchedule vẫn null), thì vòng lại bắt đầu
+            if (targetSchedule == null) {
+                continue;
+            }
+
+            // --- BƯỚC 5: CẬP NHẬT STATUS ---
+            System.out.println("\nCurrent Status of " + targetSchedule.getScheduleId() + ": " + targetSchedule.getProgressStatus());
             System.out.println("1. Not Started | 2. In Progress | 3. Completed | 4. Absent");
-            System.out.print("-> Select new status (1-4): ");
+            System.out.print("-> Select new status (1-4) or '0' to cancel: ");
             String statusChoice = scanner.nextLine().trim();
+
+            if (statusChoice.equals("0")) {
+                System.out.println("[ INFO ] Update canceled.");
+                continue; // Hủy cập nhật giữa chừng, quay lại ban đầu
+            }
 
             String newStatus = "";
             if (statusChoice.equals("1")) newStatus = "Not Started";
@@ -318,23 +395,15 @@ public class WorkoutScheduleManagement {
             else if (statusChoice.equals("4")) newStatus = "Absent";
             else {
                 System.out.println("[ WARNING ] Invalid choice. Update canceled.");
-                return;
+                continue;
             }
 
+            // Lưu thay đổi
             targetSchedule.setProgressStatus(newStatus);
             scheduleRepo.saveData(scheduleList);
-            System.out.println("[ SUCCESS ] Progress updated to: " + newStatus);
+            System.out.println("[ SUCCESS ] Progress of " + targetSchedule.getScheduleId() + " updated to: " + newStatus);
+            return; // Cập nhật thành công thì thoát ra Menu chính luôn
         }
-    }
-
-    private void printScheduleInfo(WorkoutSchedule s) {
-        System.out.println("----------------------------------------");
-        System.out.println("ID       : " + s.getScheduleId());
-        System.out.println("Trainer  : " + s.getTrainerUsername());
-        System.out.println("Member   : " + s.getMemberUsername());
-        System.out.println("Date/Time: " + s.getDate() + " at " + s.getTime());
-        System.out.println("Exercises: " + s.getExercises().replace("|", ", "));
-        System.out.println("Status   : " + s.getProgressStatus());
     }
 
     private String generateScheduleId(List<WorkoutSchedule> scheduleList) {
@@ -353,6 +422,17 @@ public class WorkoutScheduleManagement {
             }
         }
         return String.format("SCH%03d", maxId + 1);
+    }
+
+    private String checkScheduleConflict(String memberUsername, String date, String time) {
+        for (WorkoutSchedule s : scheduleList) {
+            if (s.getDate().equals(date) && s.getTime().equals(time)) {
+                if (s.getMemberUsername().equals(memberUsername)) {
+                    return "[ ERROR ] Scheduling Conflict: Member '" + memberUsername + "' is already scheduled for another workout at " + time + " on " + date + "!";
+                }
+            }
+        }
+        return null;
     }
 
     private String removeAccents(String str) {

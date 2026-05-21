@@ -44,12 +44,12 @@ public class TrainerView implements IDisplayMenu {
                     break;
 
                 case "2":
-                    scheduleManager.viewTrainerSchedules(loggedInTrainer.getUsername());
+                    scheduleManager.displaySchedules(loggedInTrainer.getUsername(),true);
                     break;
 
                 case "3":
                     System.out.println("\n[ FEATURE ] Track member attendance and progress is under construction...");
-                    System.out.println("-> Logic will be updated when AttendanceTracking is implemented.");
+                    scheduleManager.updateProgress(loggedInTrainer.getUsername(),true);
                     break;
 
                 case "0":
