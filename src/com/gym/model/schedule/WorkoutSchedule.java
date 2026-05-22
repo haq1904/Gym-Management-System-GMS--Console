@@ -36,16 +36,4 @@ public class WorkoutSchedule {
         this.exercises = exercises;
     }
 
-    @Override
-    public String toString() {
-        return "WorkoutSchedule{" +
-                "scheduleId='" + scheduleId + '\'' +
-                ", memberUsername='" + memberUsername + '\'' +
-                ", trainerUsername='" + trainerUsername + '\'' +
-                ", date='" + date + '\'' +
-                ", time='" + time + '\'' +
-                ", exercises='" + exercises + '\'' +
-                ", progressStatus='" + progressStatus + '\'' +
-                '}';
-    }
 }

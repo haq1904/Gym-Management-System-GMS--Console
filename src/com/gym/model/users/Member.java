@@ -48,22 +48,15 @@ public class Member extends User {
         return new MemberView();
     }
 
-    //Xem lich tap
-    public void viewWorkoutSchedule() {
-        // Code gọi ScheduleRepository để in lịch tập của hội viên này ra màn hình
-    }
-
     //Update tien do
     public void updateProgress(String newProgress) {
         this.workoutProgress = newProgress;
-        System.out.println("Updated progress!");
     }
 
     //Gia han goi tap
     public void renewSubscription(String newPlan) {
         this.membershipType = newPlan;
         this.subscriptionStatus = "Active";
-        System.out.println("Renewed subscription: " + newPlan);
     }
 
 

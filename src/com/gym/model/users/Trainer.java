@@ -30,19 +30,7 @@ public class Trainer extends User {
         return new TrainerView();
     }
 
-    //Xep lich cho member
-    public void assignWorkoutSchedule(Member member, String date, String exercise) {
-        // Code tạo đối tượng Schedule và lưu xuống file schedules.csv
-    }
 
-    //Diem danh member
-    public void trackAttendance(Member member, String date, boolean isPresent) {
-        // Code lưu trạng thái đi tập xuống file attendance.csv
-    }
 
-    //Theo doi tien do cua member
-    public void viewMemberProgress(Member member) {
-        System.out.println("Tiến độ của " + member.getFullName() + ": " + member.getWorkoutProgress()); //
-    }
 
 }

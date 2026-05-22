@@ -1,5 +1,6 @@
 package com.gym.view;
 
+import com.gym.model.users.Admin;
 import com.gym.model.users.User;
 import com.gym.repository.GymContext;
 import java.util.Scanner;
@@ -10,12 +11,15 @@ public class AdminView implements IDisplayMenu {
     private ReportManagement reportManagement;
     private AttendanceTracking attendanceTracking;
     private Scanner scanner = new Scanner(System.in);
+    private User loggedInAdmin ;
 
     @Override
     public void displayMenu(GymContext context, User loggedInAdmin) {
         memberShipManagement = new MemberShipManagement(context);
         reportManagement = new ReportManagement();
         attendanceTracking = new AttendanceTracking(context);
+        this.loggedInAdmin =loggedInAdmin;
+
         boolean isRunning = true;
 
         while (isRunning) {
@@ -115,16 +119,16 @@ public class AdminView implements IDisplayMenu {
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
-                    attendanceTracking.handleViewAllHistory(); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleViewAllHistory(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "2":
-                    attendanceTracking.handleFilterByDate(); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByDate(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "3":
-                    attendanceTracking.handleFilterByMember(); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByMember(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "4":
-                    attendanceTracking.handleFilterByTrainer(); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByTrainer(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "0":
                     System.out.println("[ INFO ] Returning to Reports Menu...");

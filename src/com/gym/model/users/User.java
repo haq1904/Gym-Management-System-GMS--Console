@@ -9,9 +9,6 @@ public abstract class User {
     protected String password;
     protected String fullName;
     protected String role;
-
-
-
     protected IDisplayMenu menu;
 
     protected User(String username, String password, String fullName, String role) {
@@ -58,13 +55,6 @@ public abstract class User {
     public abstract IDisplayMenu getMenu();
 
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", role='" + role + '\'' +
-                '}';
-    }
+
+
 }
