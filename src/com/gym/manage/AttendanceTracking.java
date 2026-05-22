@@ -16,8 +16,10 @@ public class AttendanceTracking {
     private Scanner scanner = new Scanner(System.in);
     private List<WorkoutSchedule> scheduleList;
     private List<User> userList;
+    private GymContext context;
 
     public AttendanceTracking(GymContext context) {
+        this.context=context;
         this.scheduleList = context.getSchedulesList();
         this.userList = context.getUserList();
     }
@@ -161,5 +163,17 @@ public class AttendanceTracking {
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         temp = pattern.matcher(temp).replaceAll("");
         return temp.replace('đ', 'd').replace('Đ', 'D');
+    }
+
+    public void handleViewAttendanceSummary(String username, boolean isAdmin) {
+        if (!isAdmin) {
+            System.out.println("[ INFO ] Detailed global summaries are available for Admins only.");
+            return;
+        }
+
+        ReportManagement reportManager = new ReportManagement(context);
+        System.out.println("\n[ FEATURE ] Compiling Gym Data... Please wait...");
+        reportManager.generateAdminAttendanceSummary();
+
     }
 }

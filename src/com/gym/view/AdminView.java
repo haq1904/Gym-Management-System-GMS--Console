@@ -16,7 +16,7 @@ public class AdminView implements IDisplayMenu {
     @Override
     public void displayMenu(GymContext context, User loggedInAdmin) {
         memberShipManagement = new MemberShipManagement(context);
-        reportManagement = new ReportManagement();
+        reportManagement = new ReportManagement(context);
         attendanceTracking = new AttendanceTracking(context);
         this.loggedInAdmin =loggedInAdmin;
 
@@ -110,9 +110,10 @@ public class AdminView implements IDisplayMenu {
         while (isAttendanceReporting) {
             System.out.println("\n--- GYM ATTENDANCE REPORTS ---");
             System.out.println("1. View All Attendance History");
-            System.out.println("2. Filter by Specific Date (Lọc theo Ngày)");
-            System.out.println("3. Filter by Member Name / Username");
-            System.out.println("4. Filter by Trainer Name / Username");
+            System.out.println("2. View Attendance Summaries");
+            System.out.println("3. Filter by Specific Date (Lọc theo Ngày)");
+            System.out.println("4. Filter by Member Name / Username");
+            System.out.println("5. Filter by Trainer Name / Username");
             System.out.println("0. Back to Reports Menu");
             System.out.print("-> Select an option (0-4): ");
 
@@ -122,12 +123,15 @@ public class AdminView implements IDisplayMenu {
                     attendanceTracking.handleViewAllHistory(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "2":
-                    attendanceTracking.handleFilterByDate(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleViewAttendanceSummary(loggedInAdmin.getUsername(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "3":
-                    attendanceTracking.handleFilterByMember(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByDate(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "4":
+                    attendanceTracking.handleFilterByMember(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    break;
+                case "5":
                     attendanceTracking.handleFilterByTrainer(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "0":
