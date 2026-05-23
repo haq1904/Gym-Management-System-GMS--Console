@@ -26,17 +26,16 @@ public class WorkoutScheduleManagement {
 
     public void createAndAssignSchedule(String trainerUsername) {
         while (true) {
-            System.out.println("\n[ CREATE NEW SCHEDULE ]");
+            System.out.println("\n[ CREATE NEW SCHEDULE ]('0' to exit to Trainer Menu)");
 
             String memberUsername = "";
             Member foundMember = null;
 
             // --- BƯỚC 1: VÒNG LẶP NHẬP VÀ KIỂM TRA USERNAME ---
             while (true) {
-                System.out.print("Enter Member's Full Name to search (or '0' to exit to Trainer Menu): ");
+                System.out.print("Enter Member's Full Name to search: ");
                 String searchName = scanner.nextLine().trim();
 
-                // LỐI THOÁT HIỂM SỐ 1
                 if (searchName.equals("0")) {
                     System.out.println("[ INFO ] Exiting Schedule Creation. Returning to Menu...");
                     return;
@@ -117,14 +116,19 @@ public class WorkoutScheduleManagement {
                     break;
                 }
             }
-
+            System.out.println("-----CREATE SCHEDULE FOR " + foundMember.getFullName() +" -----('0' to exit to Trainer Menu)");
+            List<String> currentScheduleIds = new ArrayList<>();
+            for (WorkoutSchedule s : scheduleList)
+                currentScheduleIds.add(s.getScheduleId());
+            String suggestedSchId = Helper.generateNextId("SCH", currentScheduleIds, "%03d");
+            System.out.println("Auto generated scheduleId : " + suggestedSchId);
             String date = "";
             String time = "";
 
             while (true) {
                 // 2.1 Nhập ngày
                 while (true) {
-                    System.out.print("Enter Date (dd/MM/yyyy) or '0' to back to menu: ");
+                    System.out.print("Enter Date (dd/MM/yyyy): ");
                     date = scanner.nextLine().trim();
 
                     if (date.equals("0")) {
@@ -140,7 +144,7 @@ public class WorkoutScheduleManagement {
 
                 // 2.2 Nhập giờ
                 while (true) {
-                    System.out.print("Enter Time (HH:mm) or '0' to back to menu: ");
+                    System.out.print("Enter Time (HH:mm)");
                     time = scanner.nextLine().trim();
 
                     // LỐI THOÁT HIỂM SỐ 3: Hủy ngang để làm lại từ đầu
@@ -169,7 +173,7 @@ public class WorkoutScheduleManagement {
             // --- BƯỚC 4: VÒNG LẶP NHẬP BÀI TẬP ---
             String exercises = "";
             while (true) {
-                System.out.print("Enter Exercises (separated by '|', e.g., Yoga|Cardio) or '0' to restart: ");
+                System.out.print("Enter Exercises (separated by '|', e.g., Yoga|Cardio) : ");
                 exercises = scanner.nextLine().trim();
 
                 // LỐI THOÁT HIỂM SỐ 4: Hủy ngang để làm lại từ đầu
@@ -257,12 +261,12 @@ public class WorkoutScheduleManagement {
 
     public void updateProgress(String username, boolean isTrainer) {
         while (true) {
-            System.out.println("\n[ UPDATE PROGRESS ]");
+            System.out.println("\n[ UPDATE PROGRESS ]('0' to return to Menu)");
             String searchDate = "";
 
             // --- BƯỚC 1: VÒNG LẶP NHẬP VÀ KIỂM TRA ĐỊNH DẠNG NGÀY ---
             while (true) {
-                System.out.print("Enter Date to search schedules (dd/MM/yyyy) or '0' to return to Menu: ");
+                System.out.print("Enter Date to search schedules (dd/MM/yyyy): ");
                 searchDate = scanner.nextLine().trim();
 
                 if (searchDate.equals("0")) {
@@ -312,7 +316,7 @@ public class WorkoutScheduleManagement {
                 }
 
                 for (WorkoutSchedule s : matchedSchedules) {
-                    if (s.getScheduleId().equalsIgnoreCase(targetId)) {
+                    if (s.getScheduleId().equals(targetId)) {
                         targetSchedule = s;
                         break;
                     }

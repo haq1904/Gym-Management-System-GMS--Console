@@ -203,6 +203,7 @@ public class MemberShipManagement {
             System.out.println("2. Expired");
             System.out.println("3. Suspended");
             System.out.println("0. Cancel and exit"); // Thêm option 0
+            
             String statusChoice = scanner.nextLine().trim();
 
             if (statusChoice.equals("0")) {
