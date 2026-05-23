@@ -1,27 +1,26 @@
 package com.gym.view;
 
+import com.gym.manage.AttendanceTracking;
 import com.gym.manage.WorkoutScheduleManagement;
-import com.gym.model.schedule.WorkoutSchedule;
+import com.gym.model.users.Trainer;
 import com.gym.model.users.User;
 import com.gym.repository.GymContext;
-import com.gym.repository.IRepository;
-
-import java.util.List;
 import java.util.Scanner;
 
 public class TrainerView implements IDisplayMenu {
     private Scanner scanner = new Scanner(System.in);
-
-    // Khởi tạo chuyên viên xử lý logic lịch tập
-
+    private WorkoutScheduleManagement scheduleManager;
+    private AttendanceTracking attendanceTracking;
+    private Trainer loggedInTrainer;
 
     @Override
     public void displayMenu(GymContext context, User loggedInTrainer) {
-        WorkoutScheduleManagement scheduleManager = new WorkoutScheduleManagement(context);
+        scheduleManager = new WorkoutScheduleManagement(context);
+        attendanceTracking = new AttendanceTracking(context);
+        this.loggedInTrainer = (Trainer) loggedInTrainer;
+
         boolean isRunning = true;
 
-        List<WorkoutSchedule> scheduleList = context.getSchedulesList();
-        IRepository<WorkoutSchedule> scheduleRepo = context.getScheduleRepo();
 
         while (isRunning) {
             System.out.println("\n=========================================");
@@ -47,8 +46,7 @@ public class TrainerView implements IDisplayMenu {
                     break;
 
                 case "3":
-                    System.out.println("\n[ FEATURE ] Track member attendance and progress is under construction...");
-                    scheduleManager.updateProgress(loggedInTrainer.getUsername(),true);
+                    displayAttendanceReportSubMenu();
                     break;
 
                 case "0":
@@ -58,6 +56,42 @@ public class TrainerView implements IDisplayMenu {
 
                 default:
                     System.out.println("\n[ WARNING ] Invalid choice. Please enter a valid option!");
+                    break;
+            }
+        }
+    }
+
+    private void displayAttendanceReportSubMenu(){
+        boolean isAttendanceReporting = true;
+        while (isAttendanceReporting) {
+            System.out.println("\n--- GYM ATTENDANCE REPORTS ---");
+            System.out.println("1. View Attendance Summaries");
+            System.out.println("2. View All Attendance History ");
+            System.out.println("3. Filter by Specific Date (Lọc theo Ngày)");
+            System.out.println("4. Filter by Member Name / Username");
+            System.out.println("0. Back to Reports Menu");
+            System.out.print("-> Select an option (0-4): ");
+
+            String choice = scanner.nextLine().trim();
+            switch (choice) {
+                case "1":
+                    attendanceTracking.handleViewAttendanceSummary(loggedInTrainer.getUsername(),false);
+                    break;
+                case "2":
+                    attendanceTracking.handleViewAllHistory(loggedInTrainer.getUsername(),false);
+                    break;
+                case "3":
+                    attendanceTracking.handleFilterByDate(loggedInTrainer.getFullName(),false);
+                    break;
+                case "4":
+                    attendanceTracking.handleFilterByMember(loggedInTrainer.getFullName(),false);
+                    break;
+                case "0":
+                    System.out.println("[ INFO ] Returning to Reports Menu...");
+                    isAttendanceReporting = false;
+                    break;
+                default:
+                    System.out.println("[ WARNING ] Invalid option. Please enter from 0 to 4.");
                     break;
             }
         }

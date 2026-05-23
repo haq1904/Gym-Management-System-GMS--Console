@@ -32,9 +32,7 @@ public class ReportManagement {
         Map<String, Integer> trainerFreq = new HashMap<>(); // Đếm HLV yêu thích
     }
 
-    // =========================================================================
-    // TÍNH NĂNG: TỔNG KẾT BÁO CÁO TOÀN DIỆN CHO ADMIN
-    // =========================================================================
+
     public void generateAdminAttendanceSummary() {
         int totalFinalized = 0;
         int totalAttended = 0;
@@ -205,6 +203,131 @@ public class ReportManagement {
                     uName, fName, ms.totalSessions, compRate, peakHour, favTrainerName, mShip, m.getSubscriptionStatus());
         }
         System.out.println("===================================================================================================================================================================");
+    }
+
+    public void generateTrainerAttendanceSummary(String trainerUsername) {
+        int totalAssigned = 0;   // Tổng tất cả các ca được phân công
+        int totalFinalized = 0;  // Tổng số ca đã chốt (Completed + Absent)
+        int totalAttended = 0;
+        int totalMissed = 0;
+
+        Map<String, Integer> pastDaysCount = new HashMap<>();
+        Map<String, MemberStat> myMemberStats = new HashMap<>();
+
+        DateTimeFormatter dFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate today = LocalDate.now();
+
+        // 1. Quét lịch tập, nhặt riêng dữ liệu của HLV này
+        for (WorkoutSchedule s : scheduleList) {
+            // LỌC: Bỏ qua tất cả các ca của HLV khác
+            if (!s.getTrainerUsername().equalsIgnoreCase(trainerUsername)) continue;
+
+            totalAssigned++;
+            String status = s.getProgressStatus();
+
+            // Tính Overall Attendance
+            if (status.equalsIgnoreCase("Completed")) {
+                totalAttended++;
+                totalFinalized++;
+            } else if (status.equalsIgnoreCase("Absent")) {
+                totalMissed++;
+                totalFinalized++;
+            }
+
+            // Đếm ngày quá khứ CÓ SỐ CA HOÀN THÀNH
+            if (status.equalsIgnoreCase("Completed")) {
+                try {
+                    LocalDate schedDate = LocalDate.parse(s.getDate(), dFmt);
+                    if (schedDate.isBefore(today)) {
+                        pastDaysCount.put(s.getDate(), pastDaysCount.getOrDefault(s.getDate(), 0) + 1);
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Gom số liệu cho Member Leaderboard (Chỉ đếm học viên của HLV này)
+            String mUsername = s.getMemberUsername();
+            if (!myMemberStats.containsKey(mUsername)) {
+                myMemberStats.put(mUsername, new MemberStat()); // Khởi tạo rổ mới nếu chưa có
+            }
+
+            MemberStat ms = myMemberStats.get(mUsername);
+            ms.totalSessions++;
+            if (status.equalsIgnoreCase("Completed")) ms.completedSessions++;
+        }
+
+        // =========================================================================
+        // IN KẾT QUẢ RA GIAO DIỆN DÀNH RIÊNG CHO TRAINER
+        // =========================================================================
+        System.out.println("\n===========================================================================================================");
+        System.out.println("                              📊 MY CLASSES & PERFORMANCE DASHBOARD 📊");
+        System.out.println("                                Trainer: " + getUserFullName(trainerUsername) + " (" + trainerUsername + ")");
+        System.out.println("===========================================================================================================");
+
+        // --- PHẦN 1: OVERALL ATTENDANCE ---
+        System.out.println("\n[ 1. OVERALL ATTENDANCE ]");
+        System.out.println(" - Total Assigned Classes   : " + totalAssigned + " sessions");
+        System.out.println(" - Total Attended (Completed): " + totalAttended + " sessions");
+        System.out.println(" - Total Missed (Absent)    : " + totalMissed + " sessions");
+        if (totalFinalized > 0) {
+            System.out.printf(" 🎯 MY STUDENT ATTEN. RATE  : %.1f%%\n", ((double) totalAttended / totalFinalized) * 100);
+        } else {
+            System.out.println(" 🎯 MY STUDENT ATTEN. RATE  : N/A");
+        }
+
+        // --- PHẦN 2: TOP 5 BUSIEST PAST DAYS ---
+        System.out.println("\n[ 2. TOP 5 BUSIEST PAST DAYS (By Completed Sessions) ]");
+        List<Map.Entry<String, Integer>> sortedDays = new ArrayList<>(pastDaysCount.entrySet());
+        sortedDays.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue())); // Xếp giảm dần
+
+        if (sortedDays.isEmpty()) {
+            System.out.println(" - No past completed sessions found.");
+        } else {
+            for (int i = 0; i < Math.min(5, sortedDays.size()); i++) {
+                Map.Entry<String, Integer> entry = sortedDays.get(i);
+                System.out.printf(" - Date: %-12s | Completed Classes: %-3d\n", entry.getKey(), entry.getValue());
+            }
+        }
+
+        // --- PHẦN 3: MY STUDENTS LEADERBOARD ---
+        System.out.println("\n[ 3. MY STUDENTS LEADERBOARD (Sorted by Completion Rate) ]");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
+        System.out.printf(" %-10s | %-25s | %-6s | %-10s | %-20s | %-8s\n",
+                "Username", "Full Name", "Total", "Comp. Rate", "Membership", "Status");
+        System.out.println("-----------------------------------------------------------------------------------------------------------");
+
+        List<Map.Entry<String, MemberStat>> sortedMembers = new ArrayList<>(myMemberStats.entrySet());
+        sortedMembers.sort((e1, e2) -> {
+            MemberStat m1 = e1.getValue();
+            MemberStat m2 = e2.getValue();
+            double rate1 = (m1.totalSessions == 0) ? 0.0 : (double) m1.completedSessions / m1.totalSessions;
+            double rate2 = (m2.totalSessions == 0) ? 0.0 : (double) m2.completedSessions / m2.totalSessions;
+
+            int rateComparison = Double.compare(rate2, rate1);
+            if (rateComparison == 0) {
+                return Integer.compare(m2.totalSessions, m1.totalSessions); // Cùng %, ai siêng book hơn xếp trên
+            }
+            return rateComparison;
+        });
+
+        for (Map.Entry<String, MemberStat> entry : sortedMembers) {
+            String uName = entry.getKey();
+            MemberStat ms = entry.getValue();
+
+            Member m = getMemberObject(uName);
+            if (m == null) continue;
+
+            String fName = m.getFullName();
+            if (fName.length() > 22) fName = fName.substring(0, 20) + "..";
+
+            String compRate = ms.totalSessions == 0 ? "N/A" : String.format("%.1f%%", ((double) ms.completedSessions / ms.totalSessions) * 100);
+
+            String mShip = m.getMembershipType() != null ? m.getMembershipType() : "N/A";
+            if (mShip.length() > 18) mShip = mShip.substring(0, 16) + "..";
+
+            System.out.printf(" %-10s | %-25s | %-6d | %-10s | %-20s | %-8s\n",
+                    uName, fName, ms.totalSessions, compRate, mShip, m.getSubscriptionStatus());
+        }
+        System.out.println("===========================================================================================================");
     }
 
     private String getTopKey(Map<String, Integer> map) {

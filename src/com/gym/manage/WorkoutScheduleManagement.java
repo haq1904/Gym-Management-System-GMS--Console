@@ -392,7 +392,6 @@ public class WorkoutScheduleManagement {
         return null;
     }
 
-
     private void printScheduleTable(java.util.List<WorkoutSchedule> schedulesToPrint, boolean isTrainer) {
         String columnHeader = isTrainer ? "Member Name" : "Trainer Name";
 

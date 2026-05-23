@@ -27,8 +27,10 @@ public class AttendanceTracking {
     public void handleViewAllHistory(String username, boolean isAdmin) {
         List<WorkoutSchedule> reportList = new ArrayList<>();
         for (WorkoutSchedule s : scheduleList) {
-            if (!isAdmin && !s.getTrainerUsername().equals(username)) continue;
-            reportList.add(s);
+            if (isAdmin )
+                reportList.add(s);
+            else if(username.equals(s.getTrainerUsername()))
+                reportList.add(s);
         }
         printReportTable(reportList, "ALL HISTORY", isAdmin);
     }
@@ -80,11 +82,6 @@ public class AttendanceTracking {
     }
 
     public void handleFilterByTrainer(String username, boolean isAdmin) {
-        // Chỉ dành cho Admin. Trainer không cần lọc theo HLV khác.
-        if (!isAdmin) {
-            System.out.println("[ INFO ] As a Trainer, you can only view your own reports.");
-            return;
-        }
 
         List<WorkoutSchedule> reportList = new ArrayList<>();
         System.out.print("Enter Trainer's Name or Username to filter (or '0' to go back): ");
@@ -138,7 +135,6 @@ public class AttendanceTracking {
 
             if (isAdmin) {
                 String trainerName = getUserFullName(s.getTrainerUsername());
-                if (trainerName.length() > 20) trainerName = trainerName.substring(0, 17) + "...";
 
                 System.out.printf("%-8s | %-10s | %-6s | %-20s | %-12s | %-20s | %-12s | %-10s\n",
                         s.getScheduleId(), s.getDate(), s.getTime(), memberName, s.getMemberUsername(), trainerName, s.getTrainerUsername(), s.getProgressStatus());
@@ -166,14 +162,12 @@ public class AttendanceTracking {
     }
 
     public void handleViewAttendanceSummary(String username, boolean isAdmin) {
-        if (!isAdmin) {
-            System.out.println("[ INFO ] Detailed global summaries are available for Admins only.");
-            return;
-        }
-
-        ReportManagement reportManager = new ReportManagement(context);
         System.out.println("\n[ FEATURE ] Compiling Gym Data... Please wait...");
-        reportManager.generateAdminAttendanceSummary();
-
+        ReportManagement reportManager = new ReportManagement(this.context);
+        if (isAdmin) {
+            reportManager.generateAdminAttendanceSummary();
+        } else {
+            reportManager.generateTrainerAttendanceSummary(username);
+        }
     }
 }
