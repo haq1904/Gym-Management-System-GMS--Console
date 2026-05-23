@@ -20,7 +20,6 @@ public class TrainerView implements IDisplayMenu {
         WorkoutScheduleManagement scheduleManager = new WorkoutScheduleManagement(context);
         boolean isRunning = true;
 
-        // Lấy danh sách và kho chứa từ Context (Nhớ khai báo thêm trong GymContext nha)
         List<WorkoutSchedule> scheduleList = context.getSchedulesList();
         IRepository<WorkoutSchedule> scheduleRepo = context.getScheduleRepo();
 

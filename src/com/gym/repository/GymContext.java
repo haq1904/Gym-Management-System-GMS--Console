@@ -16,9 +16,6 @@ public class GymContext {
     private List<WorkoutSchedule> schedulesList;
 
 
-
-
-    // Constructor gom tất cả vào
     public GymContext(IRepository<User> userRepo, IRepository<GymMachine> machineRepo, IRepository<WorkoutSchedule> scheduleRepo) {
         this.userRepo = userRepo;
         this.userList = userRepo.loadData();

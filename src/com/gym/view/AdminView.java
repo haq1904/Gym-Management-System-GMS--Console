@@ -8,7 +8,6 @@ import com.gym.manage.*;
 
 public class AdminView implements IDisplayMenu {
     private MemberShipManagement memberShipManagement;
-    private ReportManagement reportManagement;
     private AttendanceTracking attendanceTracking;
     private Scanner scanner = new Scanner(System.in);
     private User loggedInAdmin ;
@@ -16,7 +15,6 @@ public class AdminView implements IDisplayMenu {
     @Override
     public void displayMenu(GymContext context, User loggedInAdmin) {
         memberShipManagement = new MemberShipManagement(context);
-        reportManagement = new ReportManagement(context);
         attendanceTracking = new AttendanceTracking(context);
         this.loggedInAdmin =loggedInAdmin;
 
@@ -69,7 +67,7 @@ public class AdminView implements IDisplayMenu {
         while (isReporting) {
             System.out.println("\n--- REPORT MANAGEMENT MENU ---");
             System.out.println("1. Total Revenue from Subscriptions");
-            System.out.println("2. Members Attendance Reports");
+            System.out.println("2. Attendance Reports");
             System.out.println("0. Back to Main Admin Menu");
             System.out.print("-> Select an option (0-2): ");
 
@@ -109,8 +107,8 @@ public class AdminView implements IDisplayMenu {
         boolean isAttendanceReporting = true;
         while (isAttendanceReporting) {
             System.out.println("\n--- GYM ATTENDANCE REPORTS ---");
-            System.out.println("1. View All Attendance History");
-            System.out.println("2. View Attendance Summaries");
+            System.out.println("1. View Attendance Summaries");
+            System.out.println("2. View All Attendance History ");
             System.out.println("3. Filter by Specific Date (Lọc theo Ngày)");
             System.out.println("4. Filter by Member Name / Username");
             System.out.println("5. Filter by Trainer Name / Username");
@@ -120,10 +118,10 @@ public class AdminView implements IDisplayMenu {
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
-                    attendanceTracking.handleViewAllHistory(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleViewAttendanceSummary(loggedInAdmin.getUsername(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "2":
-                    attendanceTracking.handleViewAttendanceSummary(loggedInAdmin.getUsername(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleViewAllHistory(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "3":
                     attendanceTracking.handleFilterByDate(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi

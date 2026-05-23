@@ -5,6 +5,7 @@ import com.gym.model.users.User;
 import com.gym.repository.GymContext;
 import com.gym.repository.IRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -18,42 +19,38 @@ public class MemberShipManagement {
         userList = context.getUserList();
     }
 
-    public void handleAddMember(){
-        System.out.println("\n[ ADD NEW MEMBER ]");
-        String newUsername = "";
-        while (true) {
-            System.out.print("Enter Username: ");
-            newUsername = scanner.nextLine().trim();
+    public void handleAddMember() {
+        System.out.println("\n[ ADD NEW MEMBER ]('0' to cancel)");
 
-            if (!newUsername.matches("^[a-zA-Z0-9]+$")) {
-                System.out.println("[ ERROR ] Invalid Username!");
-                System.out.println("Please use ONLY unaccented letters and numbers. No spaces or special characters allowed.");
-                continue;
-            }
-
-            boolean isDuplicate = false;
-            for (User u : userList) {
-                // Sửa thành equalsIgnoreCase
-                if (u.getUsername().equals(newUsername)) {
-                    isDuplicate = true;
-                    break;
-                }
-            }
-
-            if (isDuplicate) {
-                System.out.println("[ ERROR ] Username '" + newUsername + "' already exists! Please try another one.");
-            } else {
-                break;
-            }
+        List<String> currentUsernames = new ArrayList<>();
+        for (User u : userList) {
+            currentUsernames.add(u.getUsername());
         }
+        String newUserName = Helper.generateNextId("member", currentUsernames, "%03d");
 
+        // Dùng println để xuống dòng cho đẹp
+        System.out.println("Auto generated username : " + newUserName);
+
+        // --- NHẬP PASSWORD ---
         System.out.print("Enter Password: ");
         String newPassword = scanner.nextLine().trim();
+        if (newPassword.equals("0")) {
+            System.out.println("[ INFO ] Cancelled adding new member.");
+            return; // Thoát ngang khỏi hàm, quay lại menu
+        }
+
+        // --- NHẬP FULL NAME ---
         System.out.print("Enter Full Name: ");
         String newFullName = scanner.nextLine().trim();
+        if (newFullName.equals("0")) {
+            System.out.println("[ INFO ] Cancelled adding new member.");
+            return; // Thoát ngang khỏi hàm, quay lại menu
+        }
 
-        Member newMember = createNewMember(newUsername, newPassword, newFullName);
+        Member newMember = createNewMember(newUserName, newPassword, newFullName);
+        if (newMember == null) {return;}
         userRepo.add(userList, newMember);
+        System.out.println("[ SUCCESS ] Member '" + newUserName + "' has been successfully added!");
     }
 
     public void handleUpdateProfileMember(){
@@ -98,7 +95,7 @@ public class MemberShipManagement {
                 else if (planChoice.equals("4")) newPlan = "Premium (12 Months)";
                 else {
                     System.out.println("[ WARNING ] Invalid choice! Update canceled.");
-                    return; // ĐÃ FIX BUG `break`
+                    return;
                 }
 
                 foundMember.renewSubscription(newPlan);
@@ -178,35 +175,46 @@ public class MemberShipManagement {
         String type = "";
         String status = "";
 
+        // --- CHỌN GÓI TẬP ---
         while (true) {
             System.out.println("\n[ MEMBERSHIP TYPE ]");
             System.out.println("1. Trial (1 Month)");
             System.out.println("2. Newbie (3 Months)");
             System.out.println("3. VIP (6 Months)");
             System.out.println("4. Premium (12 Months)");
-            System.out.print("-> Select Membership Type (1-4): ");
-            String typeChoice = scanner.nextLine();
+            System.out.print("-> Select Membership Type (0-4): ");
+            String typeChoice = scanner.nextLine().trim();
 
-            if (typeChoice.equals("1")) { type = "Trial (1 Month)"; break; }
+            if (typeChoice.equals("0")) {
+                System.out.println("[ INFO ] Cancelled adding new member.");
+                return null; // Bấm 0 thì trả về null
+            }
+            else if (typeChoice.equals("1")) { type = "Trial (1 Month)"; break; }
             else if (typeChoice.equals("2")) { type = "Newbie (3 Months)"; break; }
             else if (typeChoice.equals("3")) { type = "VIP (6 Months)"; break; }
             else if (typeChoice.equals("4")) { type = "Premium (12 Months)"; break; }
-            else { System.out.println("[ WARNING ] Invalid choice! Please select from 1 to 4."); }
+            else { System.out.println("[ WARNING ] Invalid choice! Please select from 0 to 4."); }
         }
 
+        // --- CHỌN TRẠNG THÁI ---
         while (true) {
             System.out.println("\n[ MEMBERSHIP STATUS ]");
             System.out.println("1. Active");
             System.out.println("2. Expired");
             System.out.println("3. Suspended");
-            System.out.print("-> Select Status (1-3): ");
-            String statusChoice = scanner.nextLine();
+            System.out.println("0. Cancel and exit"); // Thêm option 0
+            String statusChoice = scanner.nextLine().trim();
 
-            if (statusChoice.equals("1")) { status = "Active"; break; }
+            if (statusChoice.equals("0")) {
+                System.out.println("[ INFO ] Cancelled adding new member.");
+                return null; // Bấm 0 thì trả về null
+            }
+            else if (statusChoice.equals("1")) { status = "Active"; break; }
             else if (statusChoice.equals("2")) { status = "Expired"; break; }
             else if (statusChoice.equals("3")) { status = "Suspended"; break; }
-            else { System.out.println("[ WARNING ] Invalid choice! Please select from 1 to 3."); }
+            else { System.out.println("[ WARNING ] Invalid choice! Please select from 0 to 3."); }
         }
+
         return new Member(username, password, fullName, type, status);
     }
 
