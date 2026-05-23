@@ -8,6 +8,7 @@ import com.gym.repository.GymContext;
 import java.util.Scanner;
 
 public class TrainerView implements IDisplayMenu {
+
     private Scanner scanner = new Scanner(System.in);
     private WorkoutScheduleManagement scheduleManager;
     private AttendanceTracking attendanceTracking;
@@ -20,7 +21,6 @@ public class TrainerView implements IDisplayMenu {
         this.loggedInTrainer = (Trainer) loggedInTrainer;
 
         boolean isRunning = true;
-
 
         while (isRunning) {
             System.out.println("\n=========================================");
@@ -42,7 +42,7 @@ public class TrainerView implements IDisplayMenu {
                     break;
 
                 case "2":
-                    scheduleManager.displaySchedules(loggedInTrainer.getUsername(),true);
+                    scheduleManager.displaySchedules(loggedInTrainer.getUsername(), true);
                     break;
 
                 case "3":
@@ -61,13 +61,13 @@ public class TrainerView implements IDisplayMenu {
         }
     }
 
-    private void displayAttendanceReportSubMenu(){
+    private void displayAttendanceReportSubMenu() {
         boolean isAttendanceReporting = true;
         while (isAttendanceReporting) {
             System.out.println("\n--- GYM ATTENDANCE REPORTS ---");
             System.out.println("1. View Attendance Summaries");
             System.out.println("2. View All Attendance History ");
-            System.out.println("3. Filter by Specific Date (Lọc theo Ngày)");
+            System.out.println("3. Filter by Specific Date");
             System.out.println("4. Filter by Member Name / Username");
             System.out.println("0. Back to Reports Menu");
             System.out.print("-> Select an option (0-4): ");
@@ -75,16 +75,16 @@ public class TrainerView implements IDisplayMenu {
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
-                    attendanceTracking.handleViewAttendanceSummary(loggedInTrainer.getUsername(),false);
+                    attendanceTracking.handleViewAttendanceSummary(loggedInTrainer.getUsername(), false);
                     break;
                 case "2":
-                    attendanceTracking.handleViewAllHistory(loggedInTrainer.getUsername(),false);
+                    attendanceTracking.handleViewAllHistory(loggedInTrainer.getUsername(), false);
                     break;
                 case "3":
-                    attendanceTracking.handleFilterByDate(loggedInTrainer.getFullName(),false);
+                    attendanceTracking.handleFilterByDate(loggedInTrainer.getFullName(), false);
                     break;
                 case "4":
-                    attendanceTracking.handleFilterByMember(loggedInTrainer.getFullName(),false);
+                    attendanceTracking.handleFilterByMember(loggedInTrainer.getFullName(), false);
                     break;
                 case "0":
                     System.out.println("[ INFO ] Returning to Reports Menu...");

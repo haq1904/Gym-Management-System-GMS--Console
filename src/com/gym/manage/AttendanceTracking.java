@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -169,5 +170,65 @@ public class AttendanceTracking {
         } else {
             reportManager.generateTrainerAttendanceSummary(username);
         }
+    }
+
+    public void handleViewRevenueAndMembership() {
+        ReportManagement reportManager = new ReportManagement(this.context);
+
+        System.out.println("\n=============================================================================================================");
+        System.out.println("                    SUBSCRIPTION REVENUE & MEMBERSHIP OVERVIEW");
+        System.out.println("=============================================================================================================");
+
+        // === SECTION 1: REVENUE SUMMARY ===
+        double totalRevenue = reportManager.calculateTotalRevenue();
+        int[] statusCounts = reportManager.countMembershipsByStatus();
+        int totalMembers = statusCounts[0] + statusCounts[1] + statusCounts[2];
+        double avgRevenue = (statusCounts[0] > 0) ? totalRevenue / statusCounts[0] : 0;
+
+        System.out.println("\n[ 1. REVENUE SUMMARY ]");
+        System.out.printf(" TOTAL REVENUE (Active Subs)    : $%,.2f\n", totalRevenue);
+        System.out.printf(" Average Revenue / Active Member : $%,.2f\n", avgRevenue);
+        System.out.printf(" Active Paying Members           : %d / %d\n", statusCounts[0], totalMembers);
+
+        // === SECTION 2: REVENUE BREAKDOWN BY PLAN ===
+        System.out.println("\n[ 2. REVENUE BREAKDOWN BY PLAN ]");
+        System.out.println("-------------------------------------------------------------------------------------------------------------");
+        System.out.printf(" %-28s | %-10s | %-12s | %-12s\n", "Plan Name", "Members", "Unit Price", "Subtotal");
+        System.out.println("-------------------------------------------------------------------------------------------------------------");
+
+        Map<String, double[]> revenueByPlan = reportManager.getRevenueByPlan();
+        for (Map.Entry<String, double[]> entry : revenueByPlan.entrySet()) {
+            double[] data = entry.getValue(); // [0]=count, [1]=totalRevenue, [2]=unitPrice
+            System.out.printf(" %-28s | %-10.0f | $%-11.2f | $%-11.2f\n",
+                    entry.getKey(), data[0], data[2], data[1]);
+        }
+        System.out.println("-------------------------------------------------------------------------------------------------------------");
+        System.out.printf(" %-28s | %-10s | %-12s | $%-11.2f\n", "TOTAL", "", "", totalRevenue);
+
+        // === SECTION 3: MEMBERSHIP STATUS OVERVIEW ===
+        System.out.println("\n[ 3. MEMBERSHIP STATUS OVERVIEW ]");
+        System.out.println(" Total Members in System : " + totalMembers);
+
+        String[] statusLabels = {"Active", "Expired", "Suspended"};
+        for (int i = 0; i < 3; i++) {
+            double pct = (totalMembers > 0) ? (double) statusCounts[i] / totalMembers * 100 : 0;
+            System.out.printf(" - %-12s : %3d  (%.1f%%)\n", statusLabels[i], statusCounts[i], pct);
+        }
+
+        // === SECTION 4: MEMBERSHIP TYPE DISTRIBUTION ===
+        System.out.println("\n[ 4. MEMBERSHIP TYPE DISTRIBUTION ]");
+        String mostPopular = reportManager.getMostPopularPlan();
+        System.out.println(" Most Popular Plan : " + mostPopular);
+        System.out.println();
+
+        Map<String, Integer> distribution = reportManager.getMembershipTypeDistribution();
+        for (Map.Entry<String, Integer> entry : distribution.entrySet()) {
+            double pct = (totalMembers > 0) ? (double) entry.getValue() / totalMembers * 100 : 0;
+            String star = entry.getKey().equals(mostPopular) ? " *" : "";
+            System.out.printf(" - %-28s : %2d member(s)  (%.1f%%)%s\n",
+                    entry.getKey(), entry.getValue(), pct, star);
+        }
+
+        System.out.println("\n=============================================================================================================");
     }
 }

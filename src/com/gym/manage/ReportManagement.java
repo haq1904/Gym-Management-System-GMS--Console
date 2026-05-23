@@ -350,4 +350,99 @@ public class ReportManagement {
         }
         return null;
     }
+
+    /**
+     * Trả về giá của gói tập dựa trên tên gói.
+     * Hỗ trợ cả format cũ ("Standard 3 Months") và format mới ("Newbie (3 Months)").
+     */
+    private double getSubscriptionPrice(String membershipType) {
+        if (membershipType == null) return 0.0;
+        String type = membershipType.toLowerCase();
+
+        if (type.contains("premium") || type.contains("12 month"))  return 249.99;
+        if (type.contains("vip") || type.contains("6 month"))       return 149.99;
+        if (type.contains("newbie") || type.contains("standard") || type.contains("3 month")) return 79.99;
+        if (type.contains("trial") || type.contains("1 month"))     return 29.99;
+
+        return 0.0; // Gói không xác định
+    }
+
+    /**
+     * Tính tổng doanh thu từ các Member có trạng thái Active.
+     */
+    public double calculateTotalRevenue() {
+        double total = 0.0;
+        for (User u : userList) {
+            if (u instanceof Member) {
+                Member m = (Member) u;
+                if ("Active".equalsIgnoreCase(m.getSubscriptionStatus())) {
+                    total += getSubscriptionPrice(m.getMembershipType());
+                }
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Đếm số lượng Member theo trạng thái: [0]=Active, [1]=Expired, [2]=Suspended.
+     */
+    public int[] countMembershipsByStatus() {
+        int active = 0, expired = 0, suspended = 0;
+        for (User u : userList) {
+            if (u instanceof Member) {
+                Member m = (Member) u;
+                String status = m.getSubscriptionStatus();
+                if ("Active".equalsIgnoreCase(status))         active++;
+                else if ("Expired".equalsIgnoreCase(status))   expired++;
+                else if ("Suspended".equalsIgnoreCase(status)) suspended++;
+            }
+        }
+        return new int[]{active, expired, suspended};
+    }
+
+    // Revenue breakdown theo từng gói: planName -> [activeCount, totalRevenue, unitPrice]
+    public Map<String, double[]> getRevenueByPlan() {
+        Map<String, double[]> breakdown = new LinkedHashMap<>();
+        for (User u : userList) {
+            if (u instanceof Member) {
+                Member m = (Member) u;
+                if ("Active".equalsIgnoreCase(m.getSubscriptionStatus())) {
+                    String plan = m.getMembershipType();
+                    double price = getSubscriptionPrice(plan);
+                    double[] data = breakdown.getOrDefault(plan, new double[]{0, 0, price});
+                    data[0]++;
+                    data[1] += price;
+                    breakdown.put(plan, data);
+                }
+            }
+        }
+        return breakdown;
+    }
+
+    // Tìm gói tập phổ biến nhất (tính tất cả Member, không phân biệt Active/Expired)
+    public String getMostPopularPlan() {
+        Map<String, Integer> planCount = new HashMap<>();
+        for (User u : userList) {
+            if (u instanceof Member) {
+                Member m = (Member) u;
+                String plan = m.getMembershipType();
+                planCount.put(plan, planCount.getOrDefault(plan, 0) + 1);
+            }
+        }
+        if (planCount.isEmpty()) return "N/A";
+        return Collections.max(planCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    // Phân phối gói tập: planName -> số lượng member
+    public Map<String, Integer> getMembershipTypeDistribution() {
+        Map<String, Integer> distribution = new LinkedHashMap<>();
+        for (User u : userList) {
+            if (u instanceof Member) {
+                Member m = (Member) u;
+                String plan = m.getMembershipType();
+                distribution.put(plan, distribution.getOrDefault(plan, 0) + 1);
+            }
+        }
+        return distribution;
+    }
 }

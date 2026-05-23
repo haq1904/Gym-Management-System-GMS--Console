@@ -74,14 +74,7 @@ public class AdminView implements IDisplayMenu {
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
-                    // In ra console tượng trưng theo yêu cầu của ní
-                    System.out.println("\n=======================================================");
-                    System.out.println("📊 [ SUBSCRIPTIONS REVENUE REPORT ]                    ");
-                    System.out.println("-------------------------------------------------------");
-                    System.out.println(" Total Active Subscriptions : 45                       ");
-                    System.out.println(" Total Expired Subscriptions: 12                       ");
-                    System.out.println(" TOTAL ESTIMATED REVENUE   : $15,450.00                ");
-                    System.out.println("=======================================================");
+                    attendanceTracking.handleViewRevenueAndMembership();
                     System.out.print("Press Enter to return...");
                     scanner.nextLine();
                     break;

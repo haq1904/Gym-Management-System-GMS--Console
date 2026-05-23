@@ -13,9 +13,9 @@ public class Main {
 
     public static void main(String[] args) {
         //path file data
-        String userFilePath = "data/user.csv";
-        String machineFilePath = "data/machine.csv";
-        String scheduleFilePath = "data/scheduleAdvance.csv";
+        String userFilePath = "../data/user.csv";
+        String machineFilePath = "../data/machine.csv";
+        String scheduleFilePath = "../data/scheduleAdvance.csv";
 
         //Khoi tao repo de cho viec load du lieu
         IRepository<User> userRepo = new UserRepository(userFilePath);
