@@ -4,15 +4,15 @@ import com.gym.model.users.Member;
 import com.gym.model.users.User;
 import com.gym.repository.GymContext;
 import com.gym.repository.IRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class MemberShipManagement {
+
     private Scanner scanner = new Scanner(System.in);
     IRepository<User> userRepo;
-    List<User> userList ;
+    List<User> userList;
 
     public MemberShipManagement(GymContext context) {
         userRepo = context.getUserRepo();
@@ -36,7 +36,7 @@ public class MemberShipManagement {
         String newPassword = scanner.nextLine().trim();
         if (newPassword.equals("0")) {
             System.out.println("[ INFO ] Cancelled adding new member.");
-            return; // Thoát ngang khỏi hàm, quay lại menu
+            return;
         }
 
         // --- NHẬP FULL NAME ---
@@ -44,45 +44,68 @@ public class MemberShipManagement {
         String newFullName = scanner.nextLine().trim();
         if (newFullName.equals("0")) {
             System.out.println("[ INFO ] Cancelled adding new member.");
-            return; // Thoát ngang khỏi hàm, quay lại menu
+            return;
         }
 
         Member newMember = createNewMember(newUserName, newPassword, newFullName);
-        if (newMember == null) {return;}
+        if (newMember == null) {
+            return;
+        }
         userRepo.add(userList, newMember);
         System.out.println("[ SUCCESS ] Member '" + newUserName + "' has been successfully added!");
     }
 
-    public void handleUpdateProfileMember(){
-        System.out.println("\n[ UPDATE MEMBER ]");
-        System.out.print("Enter Username of the member to update: ");
-        String usernameToUpdate = scanner.nextLine().trim();
+    public void handleUpdateProfileMember(Member targetMember, boolean isAdmin) {
+        // Nếu Admin gọi: tìm member theo username nhập vào
+        if (isAdmin) {
+            System.out.println("\n[ UPDATE MEMBER ]");
+            System.out.print("Enter Username of the member to update: ");
+            String usernameToUpdate = scanner.nextLine().trim();
 
-        Member foundMember = null;
-        for (User u : userList) {
-            if (u.getUsername().equals(usernameToUpdate) && u instanceof Member) {
-                foundMember = (Member) u;
-                break;
+            targetMember = null;
+            for (User u : userList) {
+                if (u.getUsername().equals(usernameToUpdate) && u instanceof Member) {
+                    targetMember = (Member) u;
+                    break;
+                }
+            }
+
+            if (targetMember == null) {
+                System.out.println("[ ERROR ] Member with username '" + usernameToUpdate + "' not found!");
+                return;
             }
         }
 
-        if (foundMember == null) {
-            System.out.println("[ ERROR ] Member with username '" + usernameToUpdate + "' not found!");
-        } else {
-            System.out.println("\n[ INFO ] Current Info of " + foundMember.getFullName() + " (" + foundMember.getUsername() + "):");
-            System.out.println("- Password: " + foundMember.getPassword());
-            System.out.println("- Membership Type: " + foundMember.getMembershipType());
-            System.out.println("- Subscription Status: " + foundMember.getSubscriptionStatus());
-            System.out.println("----------------------------------------");
+        // Hiển thị thông tin hiện tại
+        System.out.println("\n[ INFO ] Current Info of " + targetMember.getFullName() + " (" + targetMember.getUsername() + "):");
+        System.out.println("- Password: " + targetMember.getPassword());
+        if (isAdmin) {
+            System.out.println("- Membership Type: " + targetMember.getMembershipType());
+            System.out.println("- Subscription Status: " + targetMember.getSubscriptionStatus());
+        }
+        System.out.println("----------------------------------------");
 
-            System.out.println("What do you want to update?");
+        System.out.println("What do you want to update?");
+        if (isAdmin) {
+            // Admin: full options
             System.out.println("1. Renew / Change Subscription Plan");
             System.out.println("2. Update Membership Status (Active/Expired/Suspended)");
             System.out.println("3. Update Password");
             System.out.println("4. Update Full Name");
-            System.out.print("-> Choice (1-4): ");
-            String updateChoice = scanner.nextLine().trim();
+            System.out.println("5. Update Username");
+            System.out.print("-> Choice (1-5): ");
+        } else {
+            // Member: chỉ 3 lựa chọn cơ bản
+            System.out.println("1. Update Username");
+            System.out.println("2. Update Password");
+            System.out.println("3. Update Full Name");
+            System.out.print("-> Choice (1-3): ");
+        }
 
+        String updateChoice = scanner.nextLine().trim();
+
+        if (isAdmin) {
+            // ===== ADMIN FLOW =====
             if (updateChoice.equals("1")) {
                 System.out.println("1. Trial (1 Month) | 2. Newbie (3 Months) | 3. VIP (6 Months) | 4. Premium (12 Months)");
                 System.out.print("-> Select new plan (1-4): ");
@@ -98,7 +121,7 @@ public class MemberShipManagement {
                     return;
                 }
 
-                foundMember.renewSubscription(newPlan);
+                targetMember.renewSubscription(newPlan);
                 userRepo.saveData(userList);
                 System.out.println("[ SUCCESS ] Subscription plan updated to database.");
             }
@@ -113,10 +136,10 @@ public class MemberShipManagement {
                 else if (statusChoice.equals("3")) newStatus = "Suspended";
                 else {
                     System.out.println("[ WARNING ] Invalid choice! Update canceled.");
-                    return; // ĐÃ FIX BUG `break`
+                    return;
                 }
 
-                foundMember.setSubscriptionStatus(newStatus);
+                targetMember.setSubscriptionStatus(newStatus);
                 userRepo.saveData(userList);
                 System.out.println("[ SUCCESS ] Status updated to database.");
             }
@@ -125,7 +148,7 @@ public class MemberShipManagement {
                 String newPass = scanner.nextLine().trim();
 
                 if (!newPass.isEmpty()) {
-                    foundMember.setPassword(newPass);
+                    targetMember.setPassword(newPass);
                     userRepo.saveData(userList);
                     System.out.println("[ SUCCESS ] Password updated successfully.");
                 } else {
@@ -137,11 +160,65 @@ public class MemberShipManagement {
                 String newName = scanner.nextLine().trim();
 
                 if (!newName.isEmpty()) {
-                    foundMember.setFullName(newName);
+                    targetMember.setFullName(newName);
                     userRepo.saveData(userList);
                     System.out.println("[ SUCCESS ] Full Name updated successfully to: " + newName);
                 } else {
                     System.out.println("[ WARNING ] Full Name cannot be empty! Update canceled.");
+                }
+            }
+            else if (updateChoice.equals("5")) {
+                handleUpdateUsername(targetMember);
+            }
+            else {
+                System.out.println("[ WARNING ] Invalid option. Update canceled.");
+            }
+        } else {
+            // ===== MEMBER FLOW (chỉ 3 lựa chọn, có retry loop) =====
+            if (updateChoice.equals("1")) {
+                handleUpdateUsername(targetMember);
+            }
+            else if (updateChoice.equals("2")) {
+                while (true) {
+                    System.out.print("Enter new Password ('0' to cancel): ");
+                    String newPass = scanner.nextLine().trim();
+
+                    if (newPass.equals("0")) {
+                        System.out.println("[ INFO ] Update canceled.");
+                        return;
+                    }
+
+                    if (!Helper.isValidInput(newPass)) {
+                        System.out.println("[ WARNING ] Password must contain only letters (a-z, A-Z) and numbers (0-9).");
+                        System.out.println("            No special characters, accents, or spaces allowed! Please try again.\n");
+                        continue;
+                    }
+
+                    targetMember.setPassword(newPass);
+                    userRepo.saveData(userList);
+                    System.out.println("[ SUCCESS ] Password updated successfully.");
+                    break;
+                }
+            }
+            else if (updateChoice.equals("3")) {
+                while (true) {
+                    System.out.print("Enter new Full Name ('0' to cancel): ");
+                    String newName = scanner.nextLine().trim();
+
+                    if (newName.equals("0")) {
+                        System.out.println("[ INFO ] Update canceled.");
+                        return;
+                    }
+
+                    if (newName.isEmpty()) {
+                        System.out.println("[ WARNING ] Full Name cannot be empty! Please try again.\n");
+                        continue;
+                    }
+
+                    targetMember.setFullName(newName);
+                    userRepo.saveData(userList);
+                    System.out.println("[ SUCCESS ] Full Name updated successfully to: " + newName);
+                    break;
                 }
             }
             else {
@@ -150,7 +227,42 @@ public class MemberShipManagement {
         }
     }
 
-    public void handleDeleteMember(){
+    private void handleUpdateUsername(Member targetMember) {
+        while (true) {
+            System.out.print("Enter new Username ('0' to cancel): ");
+            String newUsername = scanner.nextLine().trim();
+
+            if (newUsername.equals("0")) {
+                System.out.println("[ INFO ] Update canceled.");
+                return;
+            }
+
+            if (!Helper.isValidInput(newUsername)) {
+                System.out.println("[ WARNING ] Username must contain only letters (a-z, A-Z) and numbers (0-9).");
+                System.out.println("            No special characters, accents, or spaces allowed! Please try again.\n");
+                continue;
+            }
+
+            // Kiểm tra trùng username
+            boolean isDuplicate = false;
+            for (User u : userList) {
+                if (u.getUsername().equalsIgnoreCase(newUsername)) {
+                    System.out.println("[ WARNING ] Username '" + newUsername + "' already exists! Please try again.\n");
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (isDuplicate) continue;
+
+            String oldUsername = targetMember.getUsername();
+            targetMember.setUsername(newUsername);
+            userRepo.saveData(userList);
+            System.out.println("[ SUCCESS ] Username updated: " + oldUsername + " -> " + newUsername);
+            break;
+        }
+    }
+
+    public void handleDeleteMember() {
         System.out.println("\n[ DELETE MEMBER ]");
         System.out.print("Enter the Username of member to delete: ");
         String usernameToDelete = scanner.nextLine().trim();
@@ -158,7 +270,7 @@ public class MemberShipManagement {
         boolean isTargetAMember = false;
 
         for (User u : userList) {
-            if (u.getUsername().equals(usernameToDelete) && u instanceof  Member) {
+            if (u.getUsername().equals(usernameToDelete) && u instanceof Member) {
                 isTargetAMember = true;
                 break;
             }
@@ -187,7 +299,7 @@ public class MemberShipManagement {
 
             if (typeChoice.equals("0")) {
                 System.out.println("[ INFO ] Cancelled adding new member.");
-                return null; // Bấm 0 thì trả về null
+                return null;
             }
             else if (typeChoice.equals("1")) { type = "Trial (1 Month)"; break; }
             else if (typeChoice.equals("2")) { type = "Newbie (3 Months)"; break; }
@@ -202,13 +314,13 @@ public class MemberShipManagement {
             System.out.println("1. Active");
             System.out.println("2. Expired");
             System.out.println("3. Suspended");
-            System.out.println("0. Cancel and exit"); // Thêm option 0
-            
+            System.out.println("0. Cancel and exit");
+
             String statusChoice = scanner.nextLine().trim();
 
             if (statusChoice.equals("0")) {
                 System.out.println("[ INFO ] Cancelled adding new member.");
-                return null; // Bấm 0 thì trả về null
+                return null;
             }
             else if (statusChoice.equals("1")) { status = "Active"; break; }
             else if (statusChoice.equals("2")) { status = "Expired"; break; }
@@ -220,7 +332,7 @@ public class MemberShipManagement {
     }
 
     public void handleViewMemberInfo() {
-        boolean isViewing = true; // Thêm cờ để lặp lại menu này
+        boolean isViewing = true;
 
         while (isViewing) {
             System.out.println("\n[ VIEW MEMBER INFORMATION ]");
@@ -308,7 +420,7 @@ public class MemberShipManagement {
 
                 case "0":
                     System.out.println("[ INFO ] Returning to Member Menu...");
-                    isViewing = false; // Chuyển cờ thành false để thoát vòng lặp, về hàm ngoài
+                    isViewing = false;
                     break;
 
                 default:

@@ -7,7 +7,9 @@ import java.util.regex.Pattern;
 public class Helper {
 
     static public String removeAccents(String str) {
-        if (str == null) return null;
+        if (str == null) {
+            return null;
+        }
         String temp = Normalizer.normalize(str, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         temp = pattern.matcher(temp).replaceAll("");
@@ -37,5 +39,12 @@ public class Helper {
 
         // Trả về ID mới bằng cách cộng 1 vào số lớn nhất
         return prefix + String.format(formatStr, maxNumber + 1);
+    }
+
+    public static boolean isValidInput(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        return str.matches("^[a-zA-Z0-9]+$");
     }
 }

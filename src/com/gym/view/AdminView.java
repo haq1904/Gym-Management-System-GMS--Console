@@ -1,22 +1,22 @@
 package com.gym.view;
 
-import com.gym.model.users.Admin;
+import com.gym.manage.*;
 import com.gym.model.users.User;
 import com.gym.repository.GymContext;
 import java.util.Scanner;
-import com.gym.manage.*;
 
 public class AdminView implements IDisplayMenu {
+
     private MemberShipManagement memberShipManagement;
     private AttendanceTracking attendanceTracking;
     private Scanner scanner = new Scanner(System.in);
-    private User loggedInAdmin ;
+    private User loggedInAdmin;
 
     @Override
     public void displayMenu(GymContext context, User loggedInAdmin) {
         memberShipManagement = new MemberShipManagement(context);
         attendanceTracking = new AttendanceTracking(context);
-        this.loggedInAdmin =loggedInAdmin;
+        this.loggedInAdmin = loggedInAdmin;
 
         boolean isRunning = true;
 
@@ -75,8 +75,7 @@ public class AdminView implements IDisplayMenu {
             switch (choice) {
                 case "1":
                     attendanceTracking.handleViewRevenueAndMembership();
-                    System.out.print("Press Enter to return...");
-                    scanner.nextLine();
+
                     break;
 
                 case "2":
@@ -96,13 +95,13 @@ public class AdminView implements IDisplayMenu {
         }
     }
 
-    private void displayAttendanceReportSubMenu(){
+    private void displayAttendanceReportSubMenu() {
         boolean isAttendanceReporting = true;
         while (isAttendanceReporting) {
             System.out.println("\n--- GYM ATTENDANCE REPORTS ---");
             System.out.println("1. View Attendance Summaries");
             System.out.println("2. View All Attendance History ");
-            System.out.println("3. Filter by Specific Date (Lọc theo Ngày)");
+            System.out.println("3. Filter by Specific Date");
             System.out.println("4. Filter by Member Name / Username");
             System.out.println("5. Filter by Trainer Name / Username");
             System.out.println("0. Back to Reports Menu");
@@ -111,19 +110,19 @@ public class AdminView implements IDisplayMenu {
             String choice = scanner.nextLine().trim();
             switch (choice) {
                 case "1":
-                    attendanceTracking.handleViewAttendanceSummary(loggedInAdmin.getUsername(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleViewAttendanceSummary(loggedInAdmin.getUsername(), true); // Gọi hàm xử lý cốt lõib
                     break;
                 case "2":
-                    attendanceTracking.handleViewAllHistory(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleViewAllHistory(loggedInAdmin.getFullName(), true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "3":
-                    attendanceTracking.handleFilterByDate(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByDate(loggedInAdmin.getFullName(), true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "4":
-                    attendanceTracking.handleFilterByMember(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByMember(loggedInAdmin.getFullName(), true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "5":
-                    attendanceTracking.handleFilterByTrainer(loggedInAdmin.getFullName(),true); // Gọi hàm xử lý cốt lõi
+                    attendanceTracking.handleFilterByTrainer(loggedInAdmin.getFullName(), true); // Gọi hàm xử lý cốt lõi
                     break;
                 case "0":
                     System.out.println("[ INFO ] Returning to Reports Menu...");
@@ -154,7 +153,7 @@ public class AdminView implements IDisplayMenu {
                     memberShipManagement.handleAddMember();
                     break;
                 case "2":
-                    memberShipManagement.handleUpdateProfileMember();
+                    memberShipManagement.handleUpdateProfileMember(null, true);
                     break;
                 case "3":
                     memberShipManagement.handleDeleteMember();
@@ -163,6 +162,7 @@ public class AdminView implements IDisplayMenu {
                     memberShipManagement.handleViewMemberInfo();
                     break;
                 case "0":
+
                     System.out.println("[ INFO ] Returning to Main Admin Menu...");
                     isManaging = false;
                     break;
